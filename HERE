@@ -1,0 +1,38 @@
+Refactor this PyTorch transformer model to match GPT-5/Claude 4.5 architecture standards:
+
+1. **Fix Rotary Positional Embeddings**: Implement proper RoPE with correct 2D rotation matrices applied to Q and K separately. Use the standard formula: m*theta where theta_i = base^(-2i/d).
+
+2. **Fix Attention Implementation**: 
+   - Correct the causal mask (should mask positions > current position, not <)
+   - Implement Flash Attention v2 equivalent or use PyTorch's optimized scaled_dot_product_attention
+   - Add proper attention dropout and head scaling
+
+3. **Improve Layer Normalization**: Update RMSNorm to use eps=1e-5 (not 1e-8) and implement proper pre-normalization transformer architecture (normalize before each sublayer).
+
+4. **Add Gradient Checkpointing**: Wrap transformer blocks with torch.utils.checkpoint for memory efficiency.
+
+5. **Replace MoE with Proper Expert Router**: Implement sparse MoE with:
+   - Top-k expert selection (k=2 or k=4)
+   - Load balancing loss to prevent expert collapse
+   - Auxiliary loss computation
+   - Expert capacity planning
+
+6. **Enhance Tokenizer**: Update vocab_size to 50257+ and seq_len to 2048+. Add BOS/EOS/PAD tokens properly.
+
+7. **Add KV Cache**: Implement key-value caching for efficient autoregressive generation (cache K,V during inference).
+
+8. **Update Training Loop**:
+   - Add validation loop with perplexity tracking
+   - Implement learning rate warmup (10% of total steps)
+   - Add loss smoothing and exponential moving average tracking
+   - Use more realistic training (10+ epochs minimum)
+   - Add weight decay regularization properly
+
+9. **Add Inference Optimizations**:
+   - Implement proper batched generation with max_new_tokens
+   - Add temperature and top-p sampling
+   - Support speculative decoding preparation
+
+10. **Code Quality**: Add type hints, docstrings, and proper error handling throughout. Ensure config is centralized and documented.
+
+Reference: GPT-3/GPT-5 uses pre-norm, rotary embeddings, Flash Attention, and sophisticated MoE. Follow this pattern.
