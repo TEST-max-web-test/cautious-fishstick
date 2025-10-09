@@ -1,38 +1,44 @@
-Refactor this PyTorch transformer model to match GPT-5/Claude 4.5 architecture standards:
+You are fixing critical bugs in a PyTorch transformer model. Apply ALL of these fixes:
 
-1. **Fix Rotary Positional Embeddings**: Implement proper RoPE with correct 2D rotation matrices applied to Q and K separately. Use the standard formula: m*theta where theta_i = base^(-2i/d).
+1. **custom_tokenizer.py**: Remove the DUPLICATE encode() and decode() methods at the end 
+   of the class. Keep ONLY the enhanced versions with add_bos, add_eos parameters.
 
-2. **Fix Attention Implementation**: 
-   - Correct the causal mask (should mask positions > current position, not <)
-   - Implement Flash Attention v2 equivalent or use PyTorch's optimized scaled_dot_product_attention
-   - Add proper attention dropout and head scaling
+2. **custom_transformer.py - MultiHeadAttention.forward()**:
+   - Remove the line: `out = out / math.sqrt(self.num_heads)` (scaled_dot_product_attention already scales)
+   - Replace the causal mask logic with just: `is_causal=True` in scaled_dot_product_attention
+   - Remove the manual attn_mask creation entirely
+   - Ensure KV cache works by checking that k,v shapes are [B, num_heads, T_total, head_dim] after concatenation
 
-3. **Improve Layer Normalization**: Update RMSNorm to use eps=1e-5 (not 1e-8) and implement proper pre-normalization transformer architecture (normalize before each sublayer).
+3. **custom_transformer.py - SparseMoE.forward()**: Replace the sequential expert loop 
+   with vectorized operations using torch.scatter and torch.gather for 10x efficiency.
 
-4. **Add Gradient Checkpointing**: Wrap transformer blocks with torch.utils.checkpoint for memory efficiency.
+4. **custom_transformer.py - TransformerBlock.forward()**: Add KV cache management 
+   that persists across forward calls for autoregressive generation.
 
-5. **Replace MoE with Proper Expert Router**: Implement sparse MoE with:
-   - Top-k expert selection (k=2 or k=4)
-   - Load balancing loss to prevent expert collapse
-   - Auxiliary loss computation
-   - Expert capacity planning
+5. **train.py**:
+   - Add weight_decay=0.01 to AdamW optimizer
+   - Replace CosineAnnealingLR with: 
+     total_steps = len(train_loader) * epochs
+     Use warmup_steps = int(0.1 * total_steps)
+     Then create CosineAnnealingLR(optimizer, T_max=total_steps)
+   - Or use CosineAnnealingWarmRestarts with proper warmup
+   - Fix checkpoint.checkpoint() call: Remove it or wrap block to return single tensor
+   - Add gradient accumulation steps (suggest 4) for larger effective batch size
 
-6. **Enhance Tokenizer**: Update vocab_size to 50257+ and seq_len to 2048+. Add BOS/EOS/PAD tokens properly.
+6. **evaluate.py**: Update model calls from `logits = model(batch)` to `logits, aux_loss = model(batch)`
 
-7. **Add KV Cache**: Implement key-value caching for efficient autoregressive generation (cache K,V during inference).
+7. **chat.py**: 
+   - Actually USE the KV cache in the generation loop
+   - Pass kv_cache to model forward
+   - Update model forward signature to accept kv_cache parameter
+   - Fix top-p sampling: add numerical stability (clip probs to avoid underflow)
 
-8. **Update Training Loop**:
-   - Add validation loop with perplexity tracking
-   - Implement learning rate warmup (10% of total steps)
-   - Add loss smoothing and exponential moving average tracking
-   - Use more realistic training (10+ epochs minimum)
-   - Add weight decay regularization properly
+8. **text_dataset.py**: Add sequence packing mode where multiple short sequences 
+   are concatenated to reach seq_len (increases efficiency).
 
-9. **Add Inference Optimizations**:
-   - Implement proper batched generation with max_new_tokens
-   - Add temperature and top-p sampling
-   - Support speculative decoding preparation
+9. Add type hints throughout (use from typing import Optional, Tuple, etc.)
 
-10. **Code Quality**: Add type hints, docstrings, and proper error handling throughout. Ensure config is centralized and documented.
+10. Add docstrings explaining key concepts: RoPE, SparseMoE, load balancing loss.
 
-Reference: GPT-3/GPT-5 uses pre-norm, rotary embeddings, Flash Attention, and sophisticated MoE. Follow this pattern.
+Reference: GPT-5 uses warmup + cosine annealing, weight decay 0.01, gradient accumulation, 
+and efficient KV caching for inference. Ensure all these are implemented properly.

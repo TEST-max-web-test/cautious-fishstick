@@ -60,6 +60,11 @@ val_loader = DataLoader(dataset, batch_size=batch_size, sampler=val_sampler)
 
 # EMA
 class EMA:
+    """
+    Exponential Moving Average (EMA):
+    - Tracks a moving average of model parameters for more stable evaluation and improved generalization.
+    - Used during validation to apply shadow weights.
+    """
     def __init__(self, model, decay=0.999):
         self.model = model
         self.decay = decay
@@ -79,6 +84,9 @@ class EMA:
 ema = EMA(model)
 
 def compute_perplexity(loss):
+    """
+    Computes perplexity from loss value. Caps at exp(20) for stability.
+    """
     return math.exp(loss) if loss < 20 else float('inf')
 
 best_val_ppl = float('inf')

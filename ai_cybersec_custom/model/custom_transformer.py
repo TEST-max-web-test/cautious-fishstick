@@ -6,8 +6,10 @@ import torch.nn.functional as F
 
 class RotaryEmbedding(nn.Module):
     """
-    Implements Rotary Positional Embeddings (RoPE) as used in GPT-5/Claude models.
-    Applies 2D rotation matrices to Q and K using the formula theta_i = base^(-2i/d).
+    Rotary Positional Embeddings (RoPE):
+    - Used in GPT-5/Claude models for encoding position information in attention.
+    - Applies 2D rotation matrices to Q and K vectors, using theta_i = base^(-2i/d).
+    - Enables efficient extrapolation and better generalization for long sequences.
     """
     def __init__(self, dim, base=10000):
         super().__init__()
@@ -91,8 +93,11 @@ class SwiGLU(nn.Module):
 
 class SparseMoE(nn.Module):
     """
-    Sparse Mixture-of-Experts with top-k routing, load balancing loss, and expert capacity planning.
-    Returns (output, aux_loss) for training.
+    SparseMixture-of-Experts (SparseMoE):
+    - Implements top-k expert selection for each token (routing).
+    - Uses load balancing loss to prevent expert collapse and encourage uniform expert usage.
+    - Expert capacity planning ensures no expert is overloaded.
+    - Returns output and auxiliary load balancing loss for training stability.
     """
     def __init__(self, dim, num_experts=4, ff_expansion=4, k=2, capacity_factor=1.25):
         super().__init__()
@@ -119,6 +124,8 @@ class SparseMoE(nn.Module):
         # Route tokens to experts
         expert_outputs = torch.zeros_like(x_flat)
         # Load balancing loss
+        # Load balancing loss encourages uniform expert usage:
+        #   loss = sum((expert_counts / total_tokens - 1/num_experts)^2)
         expert_counts = torch.zeros(self.num_experts, device=x.device)
         for i in range(self.k):
             expert_idx = topk_indices[:, i]
@@ -151,6 +158,12 @@ class TransformerBlock(nn.Module):
         return x, aux_loss
 
 class CustomTransformer(nn.Module):
+    """
+    CustomTransformer:
+    - GPT-5/Claude Sonnet style decoder-only transformer.
+    - Features: RoPE, Flash Attention, RMSNorm (pre-norm), SparseMoE, gradient checkpointing, KV cache.
+    - Returns logits and auxiliary load balancing loss for training.
+    """
     def __init__(self, vocab_size, hidden_size=512, num_layers=6, num_heads=8, ff_expansion=4, num_experts=4):
         super().__init__()
         self.embed = nn.Embedding(vocab_size, hidden_size)
