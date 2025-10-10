@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 from torch.optim import AdamW
-from torch.optim.lr_scheduler import CosineAnnealingLR
 from torch.utils.data import DataLoader
 import math
 import os
@@ -10,7 +9,7 @@ from datetime import datetime
 from ai_cybersec_custom.model.custom_transformer import CustomTransformer
 from ai_cybersec_custom.data.text_dataset import TextDataset
 from ai_cybersec_custom.tokenizer.custom_tokenizer import CustomTokenizer
-from ai_cybersec_custom.utils.config import MODEL_CONFIG, TRAIN_CONFIG
+from ai_cybersec_custom.utils.config import MODEL_CONFIG, TRAIN_CONFIG, SPECIAL_TOKENS
 
 
 def compute_perplexity(loss: float) -> float:
@@ -47,7 +46,6 @@ class EMA:
     Exponential Moving Average (EMA):
     - Tracks a moving average of model parameters for more stable evaluation 
       and improved generalization.
-    - Used during validation to apply shadow weights.
     """
     
     def __init__(self, model: nn.Module, decay: float = 0.999):
@@ -129,6 +127,9 @@ ema = EMA(model, decay=0.999)
 best_val_ppl = float('inf')
 patience_counter = 0
 
+# ✅ FIXED: Loss function with ignore_index for PAD token
+loss_fn = nn.CrossEntropyLoss(ignore_index=SPECIAL_TOKENS['PAD'])
+
 # Training loop
 print(f"\n🚀 Starting training for {epochs} epochs...\n")
 start_time = datetime.now()
@@ -143,9 +144,9 @@ for epoch in range(epochs):
         
         optimizer.zero_grad()
         
-        # Forward pass (no mixed precision needed on CPU)
+        # Forward pass
         logits, aux_loss = model(batch)
-        ce_loss = nn.CrossEntropyLoss()(logits.view(-1, vocab_size), batch.view(-1))
+        ce_loss = loss_fn(logits.view(-1, vocab_size), batch.view(-1))
         loss = ce_loss + 0.01 * aux_loss
         loss = loss / grad_accum_steps  # Scale loss for accumulation
         
@@ -182,7 +183,7 @@ for epoch in range(epochs):
         for batch in val_loader:
             batch = batch.to(device)
             logits, aux_loss = model(batch)
-            ce_loss = nn.CrossEntropyLoss()(logits.view(-1, vocab_size), batch.view(-1))
+            ce_loss = loss_fn(logits.view(-1, vocab_size), batch.view(-1))
             val_loss += ce_loss.item()
     
     val_ppl = compute_perplexity(val_loss / len(val_loader))

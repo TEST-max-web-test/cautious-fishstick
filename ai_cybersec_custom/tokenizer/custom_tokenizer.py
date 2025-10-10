@@ -8,7 +8,7 @@ class CustomTokenizer:
     Custom tokenizer using SentencePiece with special token support.
     Handles BOS, EOS, and PAD tokens for proper sequence boundaries.
     
-    ✅ FIXED: Special tokens are now WITHIN vocab_size range
+    ✅ FIXED: Special tokens now have UNIQUE IDs
     """
     
     def __init__(self, model_path: Optional[str] = None):
@@ -23,46 +23,47 @@ class CustomTokenizer:
             self.UNK = self.sp.unk_id()
         else:
             # Default values (will be overwritten after training)
-            self.PAD = 0
-            self.UNK = 0
-            self.BOS = 1
-            self.EOS = 2
+            self.UNK = 0   # UNK = 0 (reserved)
+            self.BOS = 1   # BOS = 1
+            self.EOS = 2   # EOS = 2
+            self.PAD = 3   # PAD = 3 (UNIQUE!)
 
     def train(self, input_file: str, model_prefix: str, vocab_size: int = 8000, model_type: str = 'bpe'):
         """Train a new SentencePiece tokenizer on the input file.
         
-        ✅ FIXED: Special tokens are now within vocab_size
+        ✅ FIXED: Special tokens now have UNIQUE IDs to avoid conflicts
         """
         # Train with proper special token configuration
+        # IMPORTANT: Each special token must have a UNIQUE ID
         spm.SentencePieceTrainer.Train(
             input=input_file,
             model_prefix=model_prefix,
             vocab_size=vocab_size,
             model_type=model_type,
             character_coverage=1.0,
-            pad_id=0,          # ✅ PAD = 0 (within vocab)
-            unk_id=0,          # ✅ UNK = 0 (within vocab)
-            bos_id=1,          # ✅ BOS = 1 (within vocab)
-            eos_id=2,          # ✅ EOS = 2 (within vocab)
+            unk_id=0,          # ✅ UNK = 0 (reserved)
+            bos_id=1,          # ✅ BOS = 1
+            eos_id=2,          # ✅ EOS = 2
+            pad_id=3,          # ✅ PAD = 3 (UNIQUE - was causing conflict!)
             pad_piece='<pad>',
             unk_piece='<unk>',
             bos_piece='<s>',
             eos_piece='</s>',
-            user_defined_symbols=[],  # Add custom tokens here if needed
+            user_defined_symbols=[],
         )
         
         # Load the trained model
         self.sp.load(f"{model_prefix}.model")
         
         # Update special token IDs
-        self.PAD = self.sp.pad_id()
+        self.UNK = self.sp.unk_id()
         self.BOS = self.sp.bos_id()
         self.EOS = self.sp.eos_id()
-        self.UNK = self.sp.unk_id()
+        self.PAD = self.sp.pad_id()
         
         print(f"✅ Tokenizer trained successfully!")
         print(f"   Vocab size: {self.sp.vocab_size()}")
-        print(f"   Special tokens: PAD={self.PAD}, BOS={self.BOS}, EOS={self.EOS}, UNK={self.UNK}")
+        print(f"   Special tokens: UNK={self.UNK}, BOS={self.BOS}, EOS={self.EOS}, PAD={self.PAD}")
 
     def encode(self, text: str, add_bos: bool = False, add_eos: bool = False) -> List[int]:
         """Encode text to token IDs with optional BOS/EOS tokens."""

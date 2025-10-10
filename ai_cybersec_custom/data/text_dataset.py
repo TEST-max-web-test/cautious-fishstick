@@ -6,7 +6,7 @@ import json
 class TextDataset(Dataset):
     """
     FIXED: Properly handles conversational data by treating User+Agent pairs
-    as single training samples with proper formatting.
+    as single training samples with proper formatting and correct PAD token.
     """
     def __init__(self, file_path, tokenizer, seq_len=512):
         self.samples = []
@@ -42,7 +42,7 @@ class TextDataset(Dataset):
                     # Truncate long sequences
                     ids = ids[:seq_len]
                 else:
-                    # Pad short sequences
+                    # Pad short sequences (PAD token = 3)
                     ids = ids + [tokenizer.PAD] * (seq_len - len(ids))
                 
                 self.samples.append(torch.tensor(ids, dtype=torch.long))
@@ -108,6 +108,10 @@ if __name__ == "__main__":
     print(f"\n📊 Dataset statistics:")
     print(f"   Total samples: {len(dataset)}")
     print(f"   Sequence length: {dataset.seq_len}")
+    print(f"   PAD token ID: {tokenizer.PAD}")
+    print(f"   BOS token ID: {tokenizer.BOS}")
+    print(f"   EOS token ID: {tokenizer.EOS}")
+    print(f"   UNK token ID: {tokenizer.UNK}")
     
     # Test first sample
     sample = dataset[0]
