@@ -1,11 +1,11 @@
 import torch
 import torch.nn as nn
-from torch.cuda.amp import GradScaler, autocast
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from torch.utils.data import DataLoader
 import math
 import os
+from datetime import datetime
 
 from ai_cybersec_custom.model.custom_transformer import CustomTransformer
 from ai_cybersec_custom.data.text_dataset import TextDataset
@@ -16,6 +16,30 @@ from ai_cybersec_custom.utils.config import MODEL_CONFIG, TRAIN_CONFIG
 def compute_perplexity(loss: float) -> float:
     """Compute perplexity from loss. Caps at exp(20) for numerical stability."""
     return math.exp(loss) if loss < 20 else float('inf')
+
+
+class WarmupScheduler:
+    """Linear warmup scheduler followed by cosine annealing."""
+    
+    def __init__(self, optimizer, warmup_steps: int, total_steps: int):
+        self.optimizer = optimizer
+        self.warmup_steps = warmup_steps
+        self.total_steps = total_steps
+        self.current_step = 0
+    
+    def step(self):
+        """Update learning rate."""
+        self.current_step += 1
+        if self.current_step <= self.warmup_steps:
+            # Linear warmup
+            lr = self.optimizer.defaults['lr'] * (self.current_step / self.warmup_steps)
+        else:
+            # Cosine annealing after warmup
+            progress = (self.current_step - self.warmup_steps) / (self.total_steps - self.warmup_steps)
+            lr = self.optimizer.defaults['lr'] * 0.5 * (1.0 + math.cos(math.pi * progress))
+        
+        for param_group in self.optimizer.param_groups:
+            param_group['lr'] = lr
 
 
 class EMA:
@@ -60,8 +84,17 @@ lr = TRAIN_CONFIG['lr']
 epochs = TRAIN_CONFIG['epochs']
 clip = TRAIN_CONFIG['clip']
 checkpoint_path = TRAIN_CONFIG['checkpoint_path']
+warmup_steps = TRAIN_CONFIG['warmup_steps']
+patience = TRAIN_CONFIG['patience']
+grad_accum_steps = TRAIN_CONFIG['gradient_accumulation_steps']
+log_interval = TRAIN_CONFIG['log_interval']
+
+# Device detection
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+print(f"📍 Device: {device}")
 
 # Load tokenizer and dataset
+print("\n📂 Loading tokenizer and dataset...")
 tokenizer = CustomTokenizer(os.path.join(os.path.dirname(__file__), '../../bpe.model'))
 corpus_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../data/corpus.txt'))
 dataset = TextDataset(corpus_path, tokenizer, seq_len)
@@ -76,61 +109,69 @@ val_sampler = torch.utils.data.SubsetRandomSampler(val_indices)
 train_loader = DataLoader(dataset, batch_size=batch_size, sampler=train_sampler)
 val_loader = DataLoader(dataset, batch_size=batch_size, sampler=val_sampler)
 
-# Model
-model = CustomTransformer(vocab_size, hidden_size, num_layers, num_heads, ff_expansion)
-model = model.cuda() if torch.cuda.is_available() else model
+print(f"✅ Loaded {len(dataset)} samples | Train: {len(train_indices)}, Val: {len(val_indices)}")
 
-# Optimizer with weight decay (FIXED: added weight_decay=0.01)
+# Model
+print(f"🤖 Building model: {num_layers}L x {hidden_size}D with {num_heads} heads...")
+model = CustomTransformer(vocab_size, hidden_size, num_layers, num_heads, ff_expansion)
+model = model.to(device)
+print(f"✅ Model on {device}")
+
+# Optimizer with weight decay
 optimizer = AdamW(model.parameters(), lr=lr, weight_decay=0.01)
 
-# Scheduler with proper T_max calculation (FIXED: T_max is now total_steps)
+# Scheduler with warmup
 total_steps = len(train_loader) * epochs
-scheduler = CosineAnnealingLR(optimizer, T_max=total_steps)
+scheduler = WarmupScheduler(optimizer, warmup_steps, total_steps)
 
-scaler = GradScaler()
 ema = EMA(model, decay=0.999)
 
 best_val_ppl = float('inf')
+patience_counter = 0
 
 # Training loop
+print(f"\n🚀 Starting training for {epochs} epochs...\n")
+start_time = datetime.now()
+
 for epoch in range(epochs):
     model.train()
     total_loss = 0
     total_aux_loss = 0
     
     for batch_idx, batch in enumerate(train_loader):
-        batch = batch.cuda() if torch.cuda.is_available() else batch
+        batch = batch.to(device)
         
         optimizer.zero_grad()
         
-        # Mixed precision training
-        with autocast():
-            logits, aux_loss = model(batch)
-            ce_loss = nn.CrossEntropyLoss()(logits.view(-1, vocab_size), batch.view(-1))
-            # Combine CE loss with auxiliary load balancing loss
-            loss = ce_loss + 0.01 * aux_loss
+        # Forward pass (no mixed precision needed on CPU)
+        logits, aux_loss = model(batch)
+        ce_loss = nn.CrossEntropyLoss()(logits.view(-1, vocab_size), batch.view(-1))
+        loss = ce_loss + 0.01 * aux_loss
+        loss = loss / grad_accum_steps  # Scale loss for accumulation
         
-        # Backward pass with gradient scaling
-        scaler.scale(loss).backward()
-        scaler.unscale_(optimizer)
-        torch.nn.utils.clip_grad_norm_(model.parameters(), clip)
-        scaler.step(optimizer)
-        scaler.update()
+        # Backward pass
+        loss.backward()
         
-        # Update EMA
-        ema.update()
+        if (batch_idx + 1) % grad_accum_steps == 0:
+            torch.nn.utils.clip_grad_norm_(model.parameters(), clip)
+            optimizer.step()
+            optimizer.zero_grad()
+            scheduler.step()
+            ema.update()
         
         total_loss += ce_loss.item()
         total_aux_loss += aux_loss.item() if isinstance(aux_loss, torch.Tensor) else aux_loss
-    
-    scheduler.step()
+        
+        # Logging
+        if (batch_idx + 1) % log_interval == 0:
+            print(f"  Batch {batch_idx+1:4d}/{len(train_loader)} | Loss: {ce_loss.item():.4f} | Aux: {aux_loss.item():.4f}")
     
     # Training metrics
     train_loss = total_loss / len(train_loader)
     train_aux_loss = total_aux_loss / len(train_loader)
     train_ppl = compute_perplexity(train_loss)
-    print(f"Epoch {epoch+1}/{epochs} | Train Loss: {train_loss:.4f} | "
-          f"Aux Loss: {train_aux_loss:.4f} | Train PPL: {train_ppl:.2f}")
+    print(f"\n📊 Epoch {epoch+1}/{epochs}")
+    print(f"   Train Loss: {train_loss:.4f} | Aux Loss: {train_aux_loss:.4f} | Train PPL: {train_ppl:.2f}")
     
     # Validation
     model.eval()
@@ -139,19 +180,30 @@ for epoch in range(epochs):
     
     with torch.no_grad():
         for batch in val_loader:
-            batch = batch.cuda() if torch.cuda.is_available() else batch
-            logits, aux_loss = model(batch)  # FIXED: unpacking tuple
+            batch = batch.to(device)
+            logits, aux_loss = model(batch)
             ce_loss = nn.CrossEntropyLoss()(logits.view(-1, vocab_size), batch.view(-1))
             val_loss += ce_loss.item()
     
     val_ppl = compute_perplexity(val_loss / len(val_loader))
-    print(f"Epoch {epoch+1}/{epochs} | Val PPL: {val_ppl:.2f}")
+    print(f"   Val PPL: {val_ppl:.2f}")
     
-    # Save best checkpoint
+    # Save best checkpoint and early stopping
     if val_ppl < best_val_ppl:
         best_val_ppl = val_ppl
+        patience_counter = 0
         checkpoint_dir = os.path.dirname(checkpoint_path)
         if not os.path.exists(checkpoint_dir):
             os.makedirs(checkpoint_dir)
         torch.save(model.state_dict(), checkpoint_path)
-        print(f"✓ Saved best checkpoint with val_ppl={val_ppl:.2f}")
+        print(f"   ✅ Saved best checkpoint (val_ppl={val_ppl:.2f})")
+    else:
+        patience_counter += 1
+        if patience_counter >= patience:
+            print(f"\n⏹️  Early stopping triggered after {patience} epochs without improvement")
+            break
+
+elapsed = datetime.now() - start_time
+print(f"\n✅ Training complete in {elapsed}")
+print(f"📊 Best validation PPL: {best_val_ppl:.2f}")
+print(f"💾 Checkpoint saved to: {checkpoint_path}")
