@@ -1,45 +1,1265 @@
+User: What is penetration testing?
+Agent: Penetration testing is a simulated cyber attack against your system to check for exploitable vulnerabilities. It helps identify security weaknesses before malicious actors find them.
 
+User: What's the difference between red team and blue team?
+Agent: Red teams simulate attackers to find vulnerabilities. Blue teams defend against attacks and strengthen security. Purple team combines both for collaborative security improvement.
 
-# Large, high-quality conversational training data
-User: Hello!
-Agent: Hi there! How can I help you today?
-User: What is cybersecurity?
-Agent: Cybersecurity is the practice of protecting systems, networks, and programs from digital attacks.
-User: Who created Python?
-Agent: Python was created by Guido van Rossum and first released in 1991.
-User: What is the capital of France?
-Agent: The capital of France is Paris.
-User: Tell me a joke.
-Agent: Why did the computer go to the doctor? Because it had a virus!
-User: What is GPT-5?
-Agent: GPT-5 is a state-of-the-art language model developed for advanced natural language understanding and generation.
-User: How do transformers work in AI?
-Agent: Transformers use attention mechanisms to process input data and generate context-aware outputs, making them powerful for language tasks.
-User: What's the weather like today?
-Agent: I'm an AI, so I don't have real-time weather data, but you can check your local forecast online!
-User: How do I reset my password?
-Agent: To reset your password, click 'Forgot Password' on the login page and follow the instructions.
-User: What's the meaning of life?
-Agent: Many say the meaning of life is to seek happiness, knowledge, and connection with others.
-User: Can you help me with Python code?
-Agent: Of course! What do you need help with in Python?
-User: Write a Python function to add two numbers.
-Agent: def add(a, b): return a + b
-User: What is AI?
-Agent: AI stands for Artificial Intelligence, which enables machines to mimic human intelligence.
-User: Who won the World Cup in 2018?
-Agent: France won the FIFA World Cup in 2018.
-User: What's your name?
-Agent: I'm your AI assistant, here to help you!
-User: How do I improve cybersecurity?
-Agent: Use strong passwords, enable two-factor authentication, and keep your software updated.
-User: What is Claude Sonnet?
-Agent: Claude Sonnet is a conversational AI model developed by Anthropic, known for its safety and helpfulness.
-User: What is a Mixture-of-Experts model?
-Agent: A Mixture-of-Experts model uses multiple expert neural networks and a gating mechanism to improve performance and efficiency.
-User: How do I install Python?
-Agent: Download Python from python.org and follow the installation instructions for your operating system.
-User: What is the largest planet in our solar system?
-Agent: Jupiter is the largest planet in our solar system.
-User: How do transformers use attention?
-Agent: Transformers use attention to focus on relevant parts of the input sequence when generating outputs.
+User: What are the phases of penetration testing?
+Agent: The phases are reconnaissance, scanning, gaining access, maintaining access, and covering tracks. Each phase systematically identifies and exploits vulnerabilities.
+
+User: What is reconnaissance in pentesting?
+Agent: Reconnaissance is gathering information about the target system. It includes passive techniques like OSINT and active methods like network scanning.
+
+User: Explain OSINT in cybersecurity.
+Agent: Open Source Intelligence (OSINT) collects publicly available information about targets. Sources include social media, public records, websites, and search engines.
+
+User: What tools are used for reconnaissance?
+Agent: Common tools include Nmap for network scanning, Shodan for internet-connected devices, theHarvester for email enumeration, and Recon-ng for comprehensive reconnaissance.
+
+User: What is network scanning?
+Agent: Network scanning identifies active hosts, open ports, and services running on a network. It maps the attack surface and finds potential entry points.
+
+User: How does Nmap work?
+Agent: Nmap sends packets to target hosts and analyzes responses to determine open ports, services, operating systems, and network topology.
+
+User: What is port scanning?
+Agent: Port scanning tests network ports to identify which ones are open, closed, or filtered. It reveals services running on a system and potential vulnerabilities.
+
+User: What are common ports to scan?
+Agent: Port 22 for SSH, 80 for HTTP, 443 for HTTPS, 21 for FTP, 23 for Telnet, 25 for SMTP, 3306 for MySQL, and 3389 for RDP are commonly targeted.
+
+User: What is vulnerability scanning?
+Agent: Vulnerability scanning automatically detects security weaknesses in systems. Tools like Nessus, OpenVAS, and Qualys identify misconfigurations and known vulnerabilities.
+
+User: Explain CVE in cybersecurity.
+Agent: Common Vulnerabilities and Exposures (CVE) is a standardized identifier for known security vulnerabilities. Each CVE provides a reference for tracking and patching issues.
+
+User: What is the CVSS score?
+Agent: The Common Vulnerability Scoring System rates vulnerability severity from 0 to 10. Higher scores indicate more critical vulnerabilities requiring immediate attention.
+
+User: What is SQL injection?
+Agent: SQL injection inserts malicious SQL code into input fields to manipulate database queries. It can expose sensitive data, modify records, or compromise entire databases.
+
+User: How do you test for SQL injection?
+Agent: Test by inserting SQL metacharacters like single quotes, OR statements, and UNION queries into input fields. Tools like SQLmap automate detection and exploitation.
+
+User: What is cross-site scripting?
+Agent: Cross-site scripting (XSS) injects malicious scripts into web pages viewed by other users. It steals session cookies, redirects users, or defaces websites.
+
+User: What are the types of XSS?
+Agent: The three types are stored XSS (persists in database), reflected XSS (in URL parameters), and DOM-based XSS (client-side manipulation).
+
+User: How do you prevent XSS attacks?
+Agent: Sanitize and validate all user inputs, encode output data, use Content Security Policy headers, and implement HTTPOnly and Secure flags on cookies.
+
+User: What is cross-site request forgery?
+Agent: CSRF tricks users into executing unwanted actions on authenticated websites. It exploits trust between the browser and server to perform unauthorized operations.
+
+User: What is command injection?
+Agent: Command injection executes arbitrary system commands through vulnerable applications. Attackers inject shell commands into input fields that are passed to system calls.
+
+User: What is directory traversal?
+Agent: Directory traversal exploits insufficient input validation to access files outside the web root. Attackers use sequences like ../ to navigate the file system.
+
+User: What is remote code execution?
+Agent: Remote code execution (RCE) allows attackers to run arbitrary code on a target system. It's one of the most severe vulnerabilities, often leading to full system compromise.
+
+User: What is privilege escalation?
+Agent: Privilege escalation gains higher access levels than initially granted. Vertical escalation gains admin rights, horizontal escalation accesses other user accounts.
+
+User: How do you perform privilege escalation on Linux?
+Agent: Check for SUID binaries, writable cron jobs, kernel exploits, misconfigured sudo permissions, and vulnerable services running as root.
+
+User: What is lateral movement?
+Agent: Lateral movement is navigating through a network after initial compromise. Attackers move between systems to reach valuable targets and avoid detection.
+
+User: What is a reverse shell?
+Agent: A reverse shell connects from the target back to the attacker's machine. It bypasses firewall restrictions that block incoming connections.
+
+User: What is a bind shell?
+Agent: A bind shell opens a listening port on the target machine. The attacker connects to this port to gain command-line access to the system.
+
+User: What is Metasploit Framework?
+Agent: Metasploit is a penetration testing platform with exploits, payloads, and auxiliary modules. It simplifies vulnerability exploitation and post-exploitation activities.
+
+User: What are Metasploit modules?
+Agent: Exploits compromise systems, payloads execute on targets, auxiliary modules perform scanning and fuzzing, and post modules gather information after exploitation.
+
+User: What is a payload in pentesting?
+Agent: A payload is code executed on a target after successful exploitation. Types include shells, Meterpreter sessions, and custom scripts for specific objectives.
+
+User: What is Meterpreter?
+Agent: Meterpreter is an advanced payload in Metasploit that provides interactive shells, file system access, privilege escalation, and pivoting capabilities.
+
+User: What is Burp Suite?
+Agent: Burp Suite is a web application security testing tool. It includes a proxy, scanner, intruder for attacks, repeater for request manipulation, and extensions.
+
+User: What is the Burp Suite proxy?
+Agent: The Burp proxy intercepts HTTP/HTTPS traffic between browser and server. It allows inspection, modification, and replay of requests for security testing.
+
+User: What is fuzzing in security testing?
+Agent: Fuzzing sends invalid, unexpected, or random data to applications to find crashes, memory leaks, or security vulnerabilities through automated testing.
+
+User: What is brute force attack?
+Agent: Brute force systematically tries all possible combinations to guess credentials or encryption keys. It's time-consuming but eventually succeeds with weak security.
+
+User: What tools are used for password cracking?
+Agent: John the Ripper, Hashcat, Hydra for network services, and Medusa are popular. They use wordlists, rules, and GPU acceleration for faster cracking.
+
+User: What is a dictionary attack?
+Agent: Dictionary attacks try passwords from a predefined list of common words and phrases. It's faster than brute force but limited to the wordlist quality.
+
+User: What is a rainbow table?
+Agent: Rainbow tables are precomputed hash values for password cracking. They trade storage space for computation time, making hash cracking much faster.
+
+User: What is password spraying?
+Agent: Password spraying tries a few common passwords against many accounts. It avoids account lockouts by not repeatedly targeting single accounts.
+
+User: What is social engineering?
+Agent: Social engineering manipulates people into divulging confidential information or performing actions. It exploits human psychology rather than technical vulnerabilities.
+
+User: What is phishing?
+Agent: Phishing uses fraudulent emails or websites to steal credentials and sensitive data. Attackers impersonate trusted entities to trick victims.
+
+User: What is spear phishing?
+Agent: Spear phishing targets specific individuals or organizations with personalized messages. It's more sophisticated and successful than generic phishing campaigns.
+
+User: What is pretexting?
+Agent: Pretexting creates fabricated scenarios to extract information from targets. The attacker assumes a false identity and builds trust before requesting sensitive data.
+
+User: What is a man-in-the-middle attack?
+Agent: MITM attacks intercept communication between two parties without their knowledge. Attackers can eavesdrop, modify data, or impersonate either party.
+
+User: How does ARP spoofing work?
+Agent: ARP spoofing sends fake ARP messages to associate the attacker's MAC address with another host's IP. This redirects network traffic through the attacker's machine.
+
+User: What is DNS spoofing?
+Agent: DNS spoofing corrupts DNS cache with false IP addresses. It redirects users to malicious sites while they believe they're accessing legitimate domains.
+
+User: What is SSL stripping?
+Agent: SSL stripping downgrades HTTPS connections to HTTP, allowing attackers to intercept unencrypted traffic. It exploits the initial HTTP request before HTTPS redirect.
+
+User: What is a denial of service attack?
+Agent: DoS attacks overwhelm systems with traffic or requests to make services unavailable. DDoS uses multiple compromised systems to amplify the attack.
+
+User: What is a SYN flood attack?
+Agent: SYN flood exploits TCP handshake by sending many SYN packets without completing the connection. This exhausts server resources and prevents legitimate connections.
+
+User: What is malware?
+Agent: Malware is malicious software designed to damage, disrupt, or gain unauthorized access to systems. Types include viruses, worms, trojans, ransomware, and spyware.
+
+User: What is a trojan horse?
+Agent: A trojan disguises itself as legitimate software while performing malicious activities. Unlike viruses, it doesn't replicate but often creates backdoors for remote access.
+
+User: What is ransomware?
+Agent: Ransomware encrypts victim's files and demands payment for decryption keys. It spreads through phishing emails, exploit kits, and vulnerable remote desktop services.
+
+User: What is a rootkit?
+Agent: Rootkits hide malicious activity by modifying system functions and files. They operate at kernel level, making detection difficult and maintaining persistent access.
+
+User: What is a backdoor?
+Agent: A backdoor provides alternative access to systems bypassing normal authentication. It can be intentionally placed or result from malware infection.
+
+User: What is persistence in hacking?
+Agent: Persistence maintains access to compromised systems across reboots and security updates. Techniques include registry keys, scheduled tasks, and service modifications.
+
+User: What is post-exploitation?
+Agent: Post-exploitation activities occur after initial compromise. They include privilege escalation, lateral movement, data exfiltration, and establishing persistence.
+
+User: What is data exfiltration?
+Agent: Data exfiltration is unauthorized transfer of data from compromised systems. Methods include encrypted channels, DNS tunneling, and steganography to avoid detection.
+
+User: What is a web shell?
+Agent: A web shell is a script uploaded to web servers for remote access. It provides command execution, file management, and database access through a browser interface.
+
+User: What is file inclusion vulnerability?
+Agent: File inclusion vulnerabilities allow attackers to include files in web applications. Local File Inclusion reads local files, Remote File Inclusion executes remote code.
+
+User: What is XML external entity injection?
+Agent: XXE exploits XML parsers to read local files, perform SSRF attacks, or cause denial of service. It occurs when XML input references external entities.
+
+User: What is server-side request forgery?
+Agent: SSRF tricks servers into making requests to internal systems. Attackers access internal services, scan networks, or exploit trust relationships from the server's perspective.
+
+User: What is insecure deserialization?
+Agent: Insecure deserialization occurs when untrusted data is used to create objects. It can lead to remote code execution, injection attacks, or privilege escalation.
+
+User: What is broken authentication?
+Agent: Broken authentication allows attackers to compromise passwords, keys, or session tokens. Weak implementations fail to properly verify user identity.
+
+User: What is session hijacking?
+Agent: Session hijacking steals or predicts session tokens to impersonate legitimate users. Methods include XSS, network sniffing, and session fixation attacks.
+
+User: What is clickjacking?
+Agent: Clickjacking tricks users into clicking hidden elements by overlaying transparent layers on legitimate pages. It performs unauthorized actions without user knowledge.
+
+User: What is security misconfiguration?
+Agent: Security misconfiguration includes default credentials, unnecessary features enabled, verbose error messages, and missing security patches. It's a common vulnerability.
+
+User: What is the OWASP Top 10?
+Agent: OWASP Top 10 lists the most critical web application security risks. It includes injection, broken authentication, sensitive data exposure, and XML external entities.
+
+User: What is penetration testing methodology?
+Agent: Common methodologies include PTES (Penetration Testing Execution Standard), OWASP Testing Guide, and OSSTMM. They provide structured approaches to security assessments.
+
+User: What is wireless network pentesting?
+Agent: Wireless pentesting assesses WiFi security by testing encryption, authentication, and access controls. It includes WPA/WPA2 cracking and rogue access point detection.
+
+User: What is WPA2 handshake capture?
+Agent: WPA2 handshake capture records the four-way handshake between client and access point. The captured hash can be cracked offline using password dictionaries.
+
+User: What tools are used for wireless pentesting?
+Agent: Aircrack-ng suite for WiFi cracking, Kismet for network detection, Wifite for automated attacks, and Reaver for WPS attacks are commonly used.
+
+User: What is a rogue access point?
+Agent: A rogue access point is an unauthorized wireless device on a network. Attackers use them to intercept traffic, perform MITM attacks, or provide backdoor access.
+
+User: What is network segmentation?
+Agent: Network segmentation divides networks into isolated zones to contain breaches and limit lateral movement. It implements defense in depth through access controls.
+
+User: What is a firewall?
+Agent: Firewalls filter network traffic based on security rules. They block unauthorized access while permitting legitimate communication between trusted and untrusted networks.
+
+User: What is an intrusion detection system?
+Agent: IDS monitors network traffic for suspicious activity and policy violations. It alerts administrators but doesn't block traffic like intrusion prevention systems.
+
+User: What is signature-based detection?
+Agent: Signature-based detection compares traffic patterns against known attack signatures. It's effective for known threats but misses zero-day exploits and variants.
+
+User: What is anomaly-based detection?
+Agent: Anomaly-based detection establishes baselines of normal behavior and flags deviations. It can detect unknown threats but may produce false positives.
+
+User: What is a security information and event management system?
+Agent: SIEM aggregates logs from multiple sources, correlates events, and provides real-time analysis. It enables centralized security monitoring and incident response.
+
+User: What is threat intelligence?
+Agent: Threat intelligence is actionable information about current and emerging threats. It includes indicators of compromise, tactics, techniques, and procedures of threat actors.
+
+User: What is the MITRE ATT&CK framework?
+Agent: MITRE ATT&CK is a knowledge base of adversary tactics and techniques. It helps organizations understand attack patterns and improve defensive strategies.
+
+User: What is threat hunting?
+Agent: Threat hunting proactively searches for threats that evade automated detection. Hunters use intelligence, analytics, and experience to find hidden adversaries.
+
+User: What is incident response?
+Agent: Incident response manages security breaches through preparation, detection, containment, eradication, recovery, and lessons learned. It minimizes damage and recovery time.
+
+User: What is digital forensics?
+Agent: Digital forensics investigates cyber incidents by collecting, preserving, and analyzing digital evidence. It supports legal proceedings and incident reconstruction.
+
+User: What is steganography in security?
+Agent: Steganography hides data within other files like images or audio. Unlike encryption which scrambles data, steganography conceals the existence of information.
+
+User: What is a zero-day vulnerability?
+Agent: Zero-day vulnerabilities are unknown to vendors and have no patches available. They're highly valuable and often exploited before discovery and remediation.
+
+User: What is vulnerability disclosure?
+Agent: Vulnerability disclosure is reporting security flaws to vendors. Responsible disclosure allows time for patches before public release, coordinated disclosure involves all parties.
+
+User: What is a bug bounty program?
+Agent: Bug bounty programs reward security researchers for finding and reporting vulnerabilities. Companies like Google, Microsoft, and Facebook offer substantial rewards.
+
+User: What is hardening in cybersecurity?
+Agent: Hardening reduces attack surface by removing unnecessary services, applying patches, configuring security settings, and implementing least privilege principles.
+
+User: What is the principle of least privilege?
+Agent: Least privilege grants users only the minimum access needed for their tasks. It limits damage from compromised accounts and insider threats.
+
+User: What is defense in depth?
+Agent: Defense in depth uses multiple security layers so if one fails, others still protect assets. It includes technical, administrative, and physical controls.
+
+User: What is a security baseline?
+Agent: A security baseline defines minimum security standards for systems. It includes configuration settings, patch levels, and required security controls for compliance.
+
+User: What is compliance in cybersecurity?
+Agent: Compliance meets regulatory and industry security standards like GDPR, HIPAA, PCI DSS, and SOC 2. It requires documented policies, controls, and audits.
+
+User: What is penetration testing vs vulnerability assessment?
+Agent: Vulnerability assessments identify and classify weaknesses. Penetration testing exploits vulnerabilities to determine real-world impact and business risk.
+
+User: What is a red team assessment?
+Agent: Red team assessments simulate sophisticated adversaries testing people, processes, and technology. They use social engineering, physical penetration, and cyber attacks.
+
+User: What is purple teaming?
+Agent: Purple teaming combines red and blue team efforts for collaborative security improvement. Red teams share TTPs while blue teams enhance detection and response.
+
+User: What is threat modeling?
+Agent: Threat modeling identifies potential threats, vulnerabilities, and countermeasures during design phase. Common frameworks include STRIDE, PASTA, and DREAD.
+
+User: What is secure coding?
+Agent: Secure coding prevents vulnerabilities through input validation, output encoding, parameterized queries, proper error handling, and avoiding dangerous functions.
+
+User: What is the OWASP ASVS?
+Agent: Application Security Verification Standard provides security requirements for web applications across three verification levels. It guides secure development and testing.
+
+User: What is container security?
+Agent: Container security protects Docker and Kubernetes environments through image scanning, runtime protection, network policies, and least privilege access controls.
+
+User: What is cloud security?
+Agent: Cloud security protects data, applications, and infrastructure in cloud environments. It addresses shared responsibility models, identity management, and configuration security.
+
+User: What is endpoint security?
+Agent: Endpoint security protects devices like laptops, phones, and servers from threats. Solutions include antivirus, EDR, application whitelisting, and patch management.
+
+User: What is security awareness training?
+Agent: Security awareness training educates users about threats like phishing, social engineering, and safe practices. It's critical for reducing human-related security incidents.
+
+User: Thank you for the information!
+Agent: You're welcome! Stay curious and keep learning about cybersecurity. It's a constantly evolving field with endless opportunities for growth.
+
+User: How do I get started in ethical hacking?
+Agent: Start with fundamentals: networking, operating systems, and programming. Practice on platforms like HackTheBox, TryHackMe, and PentesterLab. Consider certifications like CEH or OSCP.
+
+User: What certifications are valuable for pentesters?
+Agent: OSCP (Offensive Security Certified Professional) is highly respected. Others include CEH (Certified Ethical Hacker), GPEN, and eWPT for web application testing.
+
+User: What programming languages should pentesters learn?
+Agent: Python for scripting and automation, Bash for Linux systems, PowerShell for Windows, and JavaScript for web application testing are essential for penetration testers.
+
+User: Goodbye!
+Agent: Goodbye! Stay ethical and happy hacking!
+
+User: What is penetration testing?
+Agent: Penetration testing is an authorized simulated cyber attack against systems to identify exploitable vulnerabilities before malicious actors can exploit them.
+
+User: What's the difference between white box and black box testing?
+Agent: White box testing provides full system knowledge including source code and architecture. Black box testing simulates external attackers with no prior knowledge.
+
+User: What is grey box testing?
+Agent: Grey box testing provides partial system knowledge like user credentials or network diagrams. It simulates insider threats or compromised user scenarios.
+
+User: What are the phases of penetration testing?
+Agent: The phases are planning and reconnaissance, scanning, gaining access, maintaining access, analysis, and reporting findings with remediation recommendations.
+
+User: What is the reconnaissance phase?
+Agent: Reconnaissance gathers intelligence about targets through passive methods like search engines and active methods like network scanning and social media analysis.
+
+User: What is passive reconnaissance?
+Agent: Passive reconnaissance collects information without directly interacting with targets. It uses public records, search engines, social media, and DNS lookups.
+
+User: What is active reconnaissance?
+Agent: Active reconnaissance directly interacts with target systems through port scanning, service enumeration, vulnerability scanning, and network mapping.
+
+User: What is OSINT?
+Agent: Open Source Intelligence collects publicly available information from websites, social media, public databases, news articles, and domain registration records.
+
+User: What tools are used for OSINT?
+Agent: TheHarvester for email enumeration, Shodan for internet-connected devices, Maltego for relationship mapping, SpiderFoot for automation, and Recon-ng for framework-based recon.
+
+User: What is Google dorking?
+Agent: Google dorking uses advanced search operators to find sensitive information exposed on websites. Operators include site:, filetype:, inurl:, and intitle:.
+
+User: Give examples of Google dorks.
+Agent: site:example.com filetype:pdf finds PDFs on a domain. inurl:admin finds admin panels. intitle:"index of" locates directory listings exposing files.
+
+User: What is Shodan?
+Agent: Shodan is a search engine for internet-connected devices. It indexes servers, webcams, routers, industrial systems, and identifies exposed services and vulnerabilities.
+
+User: What is theHarvester used for?
+Agent: TheHarvester gathers emails, subdomains, hosts, employee names, and open ports from public sources like search engines, PGP key servers, and SHODAN.
+
+User: What is subdomain enumeration?
+Agent: Subdomain enumeration discovers subdomains of target domains to expand attack surface. Tools include Sublist3r, Amass, Assetfinder, and DNS brute forcing.
+
+User: What is DNS enumeration?
+Agent: DNS enumeration queries DNS servers to discover hostnames, IP addresses, mail servers, and zone transfers. It maps network infrastructure and identifies targets.
+
+User: What is a DNS zone transfer?
+Agent: DNS zone transfer copies entire DNS zone files between servers. Misconfigured servers allow unauthorized transfers exposing internal network information.
+
+User: How do you test for DNS zone transfer?
+Agent: Use dig or nslookup with AXFR query type against target nameservers. Command example: dig axfr @nameserver domain.com tests for zone transfer vulnerability.
+
+User: What is email enumeration?
+Agent: Email enumeration discovers valid email addresses for phishing or password spraying. Methods include company websites, LinkedIn, breach databases, and SMTP verification.
+
+User: What is Nmap?
+Agent: Nmap is a network scanning tool for host discovery, port scanning, service detection, OS fingerprinting, and vulnerability detection through NSE scripts.
+
+User: What are common Nmap scan types?
+Agent: TCP SYN scan is stealthy and default. TCP connect scan completes handshakes. UDP scan checks UDP ports. ACK scan detects firewall rules.
+
+User: What is a SYN scan?
+Agent: SYN scan sends SYN packets and analyzes responses without completing TCP handshake. It's fast, stealthy, and doesn't create full connections or logs.
+
+User: What is service version detection?
+Agent: Service version detection identifies exact versions of running services. Use nmap -sV to probe open ports and match service signatures against databases.
+
+User: What is OS fingerprinting?
+Agent: OS fingerprinting identifies operating systems by analyzing network stack implementations. Active fingerprinting sends probes, passive fingerprinting observes traffic patterns.
+
+User: What are Nmap NSE scripts?
+Agent: Nmap Scripting Engine provides hundreds of scripts for advanced discovery, vulnerability detection, exploitation, and automation. Use --script option to invoke them.
+
+User: What is vulnerability scanning?
+Agent: Vulnerability scanning automatically identifies security weaknesses, misconfigurations, and missing patches. Tools include Nessus, OpenVAS, Qualys, and Rapid7 Nexpose.
+
+User: What is Nessus?
+Agent: Nessus is a commercial vulnerability scanner detecting misconfigurations, default credentials, missing patches, and compliance violations across network infrastructure.
+
+User: What is OpenVAS?
+Agent: OpenVAS is an open-source vulnerability scanner and management system. It detects security issues through thousands of vulnerability tests and provides detailed reports.
+
+User: What is the difference between authenticated and unauthenticated scanning?
+Agent: Authenticated scanning uses credentials to access systems internally for comprehensive assessment. Unauthenticated scanning tests from external perspective without credentials.
+
+User: What is CVE?
+Agent: Common Vulnerabilities and Exposures is a standardized identifier system for publicly known security vulnerabilities. Each CVE entry includes description and references.
+
+User: What is CVSS?
+Agent: Common Vulnerability Scoring System rates severity from 0-10 based on exploitability, impact, and complexity. Scores guide prioritization of patching efforts.
+
+User: What is a critical vulnerability?
+Agent: Critical vulnerabilities score 9.0-10.0 on CVSS. They allow remote code execution without authentication, require immediate patching, and pose severe organizational risk.
+
+User: What is the National Vulnerability Database?
+Agent: NVD is a U.S. government repository of standards-based vulnerability data. It provides CVE entries with severity scores, patches, and exploit information.
+
+User: What is exploit development?
+Agent: Exploit development creates proof-of-concept code leveraging vulnerabilities. It requires understanding memory corruption, shellcode, bypassing protections like DEP and ASLR.
+
+User: What is a buffer overflow?
+Agent: Buffer overflow writes data beyond allocated memory boundaries, overwriting adjacent memory. It can hijack execution flow by overwriting return addresses or function pointers.
+
+User: What is stack-based buffer overflow?
+Agent: Stack-based overflow occurs when buffer on the stack is overflowed, corrupting return addresses. Attackers redirect execution to shellcode for arbitrary code execution.
+
+User: What is heap-based buffer overflow?
+Agent: Heap overflow corrupts dynamically allocated memory on the heap. It's more complex than stack overflow but enables exploitation through metadata corruption.
+
+User: What is return-oriented programming?
+Agent: ROP chains together existing code snippets called gadgets to bypass DEP protections. It executes arbitrary operations without injecting new code.
+
+User: What is DEP?
+Agent: Data Execution Prevention marks memory regions as non-executable. It prevents shellcode execution in stack or heap, forcing attackers to use ROP techniques.
+
+User: What is ASLR?
+Agent: Address Space Layout Randomization randomizes memory addresses of processes. It makes exploitation harder by preventing attackers from predicting memory locations.
+
+User: What is shellcode?
+Agent: Shellcode is machine code payload executed after successful exploitation. It typically spawns shells, creates users, or downloads additional payloads.
+
+User: What is a NOP sled?
+Agent: NOP sled is a sequence of no-operation instructions preceding shellcode. It increases exploitation success by providing larger landing zone for imprecise jumps.
+
+User: What is fuzzing?
+Agent: Fuzzing sends malformed, unexpected, or random inputs to applications to trigger crashes, hangs, or security vulnerabilities. It automates vulnerability discovery.
+
+User: What are types of fuzzing?
+Agent: Mutation-based fuzzing modifies valid inputs. Generation-based fuzzing creates inputs from specifications. Coverage-guided fuzzing like AFL maximizes code path exploration.
+
+User: What is AFL fuzzer?
+Agent: American Fuzzy Lop uses genetic algorithms and coverage feedback to intelligently mutate inputs. It discovers vulnerabilities by maximizing code coverage efficiently.
+
+User: What is web application pentesting?
+Agent: Web application pentesting assesses security of web apps through injection attacks, authentication bypass, session management flaws, and business logic vulnerabilities.
+
+User: What is the OWASP Top 10?
+Agent: OWASP Top 10 lists most critical web application risks including injection, broken authentication, sensitive data exposure, XXE, broken access control, and security misconfiguration.
+
+User: What is SQL injection?
+Agent: SQL injection inserts malicious SQL into input fields to manipulate database queries. It enables data extraction, authentication bypass, and remote code execution.
+
+User: What are types of SQL injection?
+Agent: In-band SQLi returns results directly. Blind SQLi infers data from application behavior. Out-of-band SQLi uses alternative channels like DNS for data exfiltration.
+
+User: What is error-based SQL injection?
+Agent: Error-based SQLi extracts database information from error messages. Attackers trigger SQL errors containing sensitive data like table names and column values.
+
+User: What is union-based SQL injection?
+Agent: Union-based SQLi uses UNION operator to combine malicious queries with legitimate ones, returning additional data from other tables in the response.
+
+User: What is boolean-based blind SQL injection?
+Agent: Boolean-based blind SQLi infers data by observing true/false responses. Attackers craft queries causing different application behaviors based on conditions.
+
+User: What is time-based blind SQL injection?
+Agent: Time-based blind SQLi uses database sleep functions to infer data. Response delays indicate true conditions, enabling bit-by-bit data extraction.
+
+User: What is second-order SQL injection?
+Agent: Second-order SQLi stores malicious input that executes later when retrieved. The application safely stores data but unsafely uses it in subsequent queries.
+
+User: How do you prevent SQL injection?
+Agent: Use parameterized queries or prepared statements. Apply input validation, escape special characters, implement least privilege database access, and use ORMs properly.
+
+User: What is SQLmap?
+Agent: SQLmap automates SQL injection detection and exploitation. It supports numerous databases, extraction techniques, and can fingerprint databases, dump data, and access file systems.
+
+User: What are SQLmap tamper scripts?
+Agent: Tamper scripts bypass WAFs and filters by modifying payloads. They encode data, change case, add comments, or use alternative syntax to evade detection.
+
+User: What is NoSQL injection?
+Agent: NoSQL injection exploits NoSQL databases like MongoDB through operator injection, JavaScript injection, or JSON manipulation to bypass authentication or extract data.
+
+User: What is cross-site scripting?
+Agent: XSS injects malicious scripts into web pages viewed by others. It steals cookies, hijacks sessions, defaces pages, or redirects users to malicious sites.
+
+User: What is reflected XSS?
+Agent: Reflected XSS occurs when malicious scripts in URLs or forms are immediately returned in responses. It requires victims to click crafted links.
+
+User: What is stored XSS?
+Agent: Stored XSS persists malicious scripts in databases that execute when other users view affected pages. It's more dangerous than reflected XSS.
+
+User: What is DOM-based XSS?
+Agent: DOM XSS manipulates client-side JavaScript and DOM environment without server involvement. The vulnerability exists in client-side code processing untrusted data.
+
+User: What is blind XSS?
+Agent: Blind XSS payloads execute in areas not immediately visible to attackers like admin panels or logs. Detection requires callbacks to attacker-controlled servers.
+
+User: How do you detect XSS vulnerabilities?
+Agent: Test input fields with script tags, event handlers, and encoding variations. Use tools like XSS Hunter, Burp Suite, and manual testing with payloads.
+
+User: What is XSS Hunter?
+Agent: XSS Hunter is a platform for finding blind XSS vulnerabilities. It provides unique payloads that callback to your server when executed anywhere.
+
+User: How do you prevent XSS?
+Agent: Encode output based on context (HTML, JavaScript, URL). Validate and sanitize input, use Content Security Policy, HTTPOnly cookies, and modern frameworks with auto-escaping.
+
+User: What is Content Security Policy?
+Agent: CSP is an HTTP header restricting resource sources browsers can load. It mitigates XSS by defining trusted script, style, and content origins.
+
+User: What is cross-site request forgery?
+Agent: CSRF tricks authenticated users into executing unwanted actions. Attackers craft requests that browsers automatically authenticate using victim's session cookies.
+
+User: How does CSRF work?
+Agent: Attacker creates malicious page with auto-submitting form or image tag pointing to vulnerable site. Victim's browser includes authentication cookies with forged request.
+
+User: How do you prevent CSRF?
+Agent: Use anti-CSRF tokens unique per session and request. Verify Origin and Referer headers, require re-authentication for sensitive actions, and use SameSite cookie attribute.
+
+User: What is command injection?
+Agent: Command injection executes arbitrary OS commands through vulnerable applications. It occurs when user input is passed to system shells without proper sanitization.
+
+User: How do you test for command injection?
+Agent: Inject shell metacharacters like semicolons, pipes, and backticks. Test with commands like sleep, ping, or curl to external servers confirming execution.
+
+User: What is OS command injection vs code injection?
+Agent: OS command injection executes system commands through shell. Code injection executes arbitrary code in application's language like PHP eval or Python exec.
+
+User: How do you prevent command injection?
+Agent: Avoid system calls with user input. Use language APIs instead of shell commands, validate input against whitelists, and escape shell metacharacters properly.
+
+User: What is XML external entity injection?
+Agent: XXE exploits vulnerable XML parsers by defining external entities. It enables local file disclosure, SSRF, denial of service, and remote code execution.
+
+User: How does XXE work?
+Agent: Attackers define external entities referencing local files or URLs. When parser processes XML, it resolves entities exposing file contents or triggering SSRF.
+
+User: What is blind XXE?
+Agent: Blind XXE occurs when parser resolves entities but doesn't return data. Attackers use out-of-band techniques like DNS or HTTP callbacks for data exfiltration.
+
+User: How do you prevent XXE?
+Agent: Disable external entity processing in XML parsers. Use less complex data formats like JSON, validate XML against schemas, and keep parsers updated.
+
+User: What is server-side request forgery?
+Agent: SSRF tricks servers into making requests to unintended locations. Attackers access internal services, cloud metadata, or perform port scanning from server context.
+
+User: What are impacts of SSRF?
+Agent: Access internal services, read cloud metadata like AWS credentials, scan internal networks, bypass firewalls, and exploit trust relationships between systems.
+
+User: What is cloud metadata SSRF?
+Agent: Cloud metadata SSRF accesses instance metadata endpoints containing IAM credentials, SSH keys, and configuration. AWS metadata is at 169.254.169.254.
+
+User: How do you prevent SSRF?
+Agent: Validate and whitelist URLs, block internal IP ranges, disable unnecessary URL schemas, use separate networks for internal services, and implement egress filtering.
+
+User: What is insecure deserialization?
+Agent: Insecure deserialization occurs when applications deserialize untrusted data. It enables remote code execution, injection attacks, privilege escalation, and replay attacks.
+
+User: How does deserialization attack work?
+Agent: Attackers craft malicious serialized objects that execute code during deserialization. Languages like Java, Python, PHP, and Ruby have vulnerable deserialization gadget chains.
+
+User: What are Java deserialization gadgets?
+Agent: Java gadget chains like Commons Collections, Spring, and Rome use existing classes to achieve code execution through method invocation during deserialization.
+
+User: How do you prevent insecure deserialization?
+Agent: Avoid deserializing untrusted data. Use integrity checks like HMAC, implement type constraints, monitor deserialization, and use safer serialization formats.
+
+User: What is directory traversal?
+Agent: Directory traversal exploits insufficient input validation to access files outside intended directories. Attackers use sequences like ../ to navigate file systems.
+
+User: What is local file inclusion?
+Agent: LFI exploits file inclusion functions to read local files. It can expose configuration files, logs, source code, and enable remote code execution through log poisoning.
+
+User: What is remote file inclusion?
+Agent: RFI includes remote files from attacker-controlled servers. If execution is enabled, it directly achieves remote code execution without additional exploitation.
+
+User: What is log poisoning?
+Agent: Log poisoning injects malicious code into log files via user agents or requests. When logs are included through LFI, injected code executes.
+
+User: How do you prevent file inclusion?
+Agent: Validate file paths against whitelists, use indirect references like IDs mapped to files, disable remote file inclusion, and implement proper access controls.
+
+User: What is broken authentication?
+Agent: Broken authentication occurs when applications incorrectly implement login, session management, or password recovery. It enables account takeover and impersonation.
+
+User: What is credential stuffing?
+Agent: Credential stuffing uses breached username-password pairs from other services. Attackers exploit password reuse to gain unauthorized access at scale.
+
+User: What is password spraying?
+Agent: Password spraying tries common passwords against many accounts. It avoids account lockouts by limiting attempts per account while maximizing coverage.
+
+User: What is session fixation?
+Agent: Session fixation forces users to authenticate with attacker-known session IDs. After victim logs in, attacker uses fixed session ID for unauthorized access.
+
+User: What is session hijacking?
+Agent: Session hijacking steals or predicts session tokens to impersonate users. Methods include XSS, network sniffing, session fixation, and brute forcing tokens.
+
+User: What is JWT?
+Agent: JSON Web Token is a compact, URL-safe token for authentication. It contains header, payload, and signature, enabling stateless authentication without server-side sessions.
+
+User: What are JWT vulnerabilities?
+Agent: Weak secrets enable signature forgery. Algorithm confusion accepts unsigned tokens. None algorithm bypasses verification. Key injection and JWKS injection modify trusted keys.
+
+User: What is the none algorithm attack?
+Agent: The none algorithm attack changes JWT algorithm to "none" removing signature requirement. Vulnerable applications accept unsigned tokens granting unauthorized access.
+
+User: How do you test JWT security?
+Agent: Try algorithm confusion, weak secrets, none algorithm, expired tokens, and signature verification bypass. Tools include jwt_tool and Burp extensions.
+
+User: What is broken access control?
+Agent: Broken access control fails to enforce proper authorization. Users access unauthorized functionality or data through URL manipulation, API abuse, or privilege escalation.
+
+User: What is horizontal privilege escalation?
+Agent: Horizontal escalation accesses resources of users at the same privilege level. Attackers modify parameters like user IDs to access other users' data.
+
+User: What is vertical privilege escalation?
+Agent: Vertical escalation gains higher privileges like admin access. It exploits authentication flaws, parameter manipulation, or application logic vulnerabilities.
+
+User: What is IDOR?
+Agent: Insecure Direct Object Reference exposes internal implementation objects like database keys in URLs. Attackers modify parameters to access unauthorized resources.
+
+User: How do you test for IDOR?
+Agent: Modify object identifiers in URLs, cookies, and requests. Test sequential IDs, GUIDs, and encoded values. Check authorization for all CRUD operations.
+
+User: What is mass assignment?
+Agent: Mass assignment binds request parameters directly to objects. Attackers add unexpected parameters like isAdmin=true to escalate privileges or modify protected fields.
+
+User: What is security misconfiguration?
+Agent: Security misconfiguration includes default credentials, unnecessary features, verbose errors, missing patches, insecure defaults, and exposed admin interfaces.
+
+User: What are common misconfigurations?
+Agent: Default credentials on devices and apps, directory listing enabled, verbose error messages, unpatched systems, exposed git directories, and unnecessary services running.
+
+User: What is sensitive data exposure?
+Agent: Sensitive data exposure occurs when applications inadequately protect sensitive information like passwords, credit cards, health records, and personally identifiable information.
+
+User: What is insufficient cryptography?
+Agent: Insufficient cryptography uses weak algorithms like MD5 or DES, hardcoded keys, improper key management, or no encryption for sensitive data.
+
+User: What is Heartbleed?
+Agent: Heartbleed is a TLS vulnerability (CVE-2014-0160) in OpenSSL allowing memory disclosure. Attackers read sensitive data including private keys and user credentials.
+
+User: What is POODLE?
+Agent: POODLE (Padding Oracle On Downgraded Legacy Encryption) exploits SSL 3.0 padding. Attackers decrypt secure connections through man-in-the-middle and protocol downgrade.
+
+User: What is clickjacking?
+Agent: Clickjacking tricks users into clicking invisible elements by overlaying transparent iframes. It performs unauthorized actions like enabling webcams or transferring funds.
+
+User: How do you prevent clickjacking?
+Agent: Use X-Frame-Options header to deny framing. Implement Content-Security-Policy frame-ancestors directive. Add frame-busting JavaScript as defense-in-depth.
+
+User: What is HTML injection?
+Agent: HTML injection inserts malicious HTML into pages without JavaScript execution. It enables phishing, defacement, and can escalate to XSS if scripts execute.
+
+User: What is host header injection?
+Agent: Host header injection manipulates the HTTP Host header. It enables password reset poisoning, cache poisoning, SSRF, and routing manipulation.
+
+User: What is HTTP request smuggling?
+Agent: Request smuggling exploits discrepancies in how front-end and back-end servers parse HTTP requests. It bypasses security controls and poisons caches.
+
+User: What is HTTP response splitting?
+Agent: Response splitting injects CRLF characters to craft arbitrary HTTP responses. It enables XSS, cache poisoning, and credential theft through header injection.
+
+User: What is template injection?
+Agent: Template injection exploits server-side template engines by injecting template directives. It often achieves remote code execution through template expression evaluation.
+
+User: What is SSTI?
+Agent: Server-Side Template Injection exploits templates engines like Jinja2, Freemarker, or Velocity. Attackers inject template syntax to execute arbitrary code on servers.
+
+User: What is CSTI?
+Agent: Client-Side Template Injection exploits client-side frameworks like AngularJS. It's similar to DOM XSS but uses template expression syntax for code execution.
+
+User: What is business logic vulnerability?
+Agent: Business logic flaws exploit application design and workflow assumptions. They bypass intended restrictions through legitimate functionality misuse without technical exploitation.
+
+User: What are examples of business logic flaws?
+Agent: Price manipulation in carts, negative quantities, race conditions in transfers, bypassing purchase flows, privilege escalation through workflows, and coupon code abuse.
+
+User: What is race condition?
+Agent: Race conditions occur when application behavior depends on event timing. Attackers exploit this by making concurrent requests to manipulate state inconsistently.
+
+User: What is TOCTOU?
+Agent: Time-of-Check Time-of-Use exploits timing gap between validation and usage. Resources change between security check and actual use enabling exploitation.
+
+User: What is API security testing?
+Agent: API testing assesses REST and SOAP APIs for injection, broken authentication, excessive data exposure, lack of rate limiting, and mass assignment vulnerabilities.
+
+User: What is excessive data exposure in APIs?
+Agent: APIs return more data than needed, exposing sensitive information. Clients filter responses but sensitive fields remain accessible through direct API calls.
+
+User: What is lack of resources and rate limiting?
+Agent: Missing rate limits enable brute force, denial of service, and resource exhaustion. APIs should restrict request frequency and implement pagination.
+
+User: What is GraphQL?
+Agent: GraphQL is a query language for APIs providing flexible data fetching. It has unique security concerns like deep nesting, introspection, and batching attacks.
+
+User: What are GraphQL security issues?
+Agent: Introspection exposes schema details. Deep nesting causes DoS. Batching amplifies attacks. Field suggestions leak info. Missing authentication on queries.
+
+User: What is REST API security?
+Agent: REST API security includes authentication, authorization, input validation, rate limiting, HTTPS enforcement, CORS configuration, and proper error handling.
+
+User: What is SOAP security?
+Agent: SOAP security addresses XML vulnerabilities like XXE, SOAP injection, WS-Security bypass, and endpoint enumeration. It requires schema validation and proper authentication.
+
+User: What is file upload vulnerability?
+Agent: File upload vulnerabilities enable malicious file uploads leading to remote code execution, stored XSS, path traversal, or denial of service.
+
+User: How do you exploit file upload?
+Agent: Upload web shells with double extensions, null bytes, or MIME type confusion. Bypass filters through polyglots, metadata injection, or path traversal.
+
+User: What is a web shell?
+Agent: Web shells are scripts uploaded to servers providing remote access. They offer command execution, file management, database access, and network pivoting.
+
+User: How do you prevent file upload vulnerabilities?
+Agent: Validate file types by content not extension, store uploads outside web root, randomize filenames, scan for malware, limit file sizes, and disable execution.
+
+User: What is open redirect?
+Agent: Open redirect vulnerabilities redirect users to arbitrary URLs. Attackers exploit this for phishing, bypassing URL filters, or chaining with other attacks.
+
+User: What is parameter pollution?
+Agent: Parameter pollution submits multiple parameters with same name. Applications may use first, last, or all values causing logic flaws and filter bypass.
+
+User: What is HTTP parameter pollution?
+Agent: HPP exploits different parameter parsing by web servers and applications. It bypasses WAFs, manipulates application logic, and injects values.
+
+User: What is information disclosure?
+Agent: Information disclosure exposes sensitive data through error messages, comments in source, backup files, directory listings, debug pages, or verbose responses.
+
+User: What is subdomain takeover?
+Agent: Subdomain takeover claims abandoned subdomains pointing to external services. If DNS record exists but service is unclaimed, attackers register it.
+
+User: How does subdomain takeover work?
+Agent: Organization removes service but leaves DNS record. Attacker registers service account with same configuration. Subdomain now serves attacker content on legitimate domain.
+
+User: What is CORS misconfiguration?
+Agent: CORS misconfiguration allows unauthorized domains to access API responses. Overly permissive policies expose sensitive data to malicious cross-origin requests.
+
+User: What is CORS?
+Agent: Cross-Origin Resource Sharing is a mechanism allowing controlled cross-origin requests. It uses HTTP headers to specify which origins can access resources.
+
+User: What is dangling markup injection?
+Agent: Dangling markup captures sensitive page content by injecting unclosed tags. It exfiltrates CSRF tokens and data to attacker servers without full XSS.
+
+User: What is WebSocket security?
+Agent: WebSocket security addresses lack of CORS-like protections, authentication per message, input validation, and CSRF on handshake requiring origin validation.
+
+User: What is Burp Suite?
+Agent: Burp Suite is a web application security testing platform with proxy, scanner, intruder, repeater, sequencer, decoder, and extensibility through apps.
+
+User: What is Burp Proxy?
+Agent: Burp Proxy intercepts HTTP/HTTPS traffic between browser and server. It allows inspection, modification, and replay of requests for manual testing.
+
+User: What is Burp Intruder?
+Agent: Burp Intruder automates customized attacks using payload positions and lists. It performs brute force, fuzzing, parameter manipulation, and enumeration attacks.
+
+User: What is Burp Repeater?
+Agent: Burp Repeater manually manipulates and reissues individual HTTP requests. It's useful for testing parameters, headers, and observing application behavior.
+
+User: What is Burp Scanner?
+Agent: Burp Scanner automatically scans for vulnerabilities including SQL injection, XSS, SSRF, and misconfigurations. It provides detailed findings and remediation guidance.
+
+User: What is Burp Collaborator?
+Agent: Burp Collaborator detects out-of-band vulnerabilities by monitoring DNS, HTTP callbacks. It identifies blind SSRF, XXE, and asynchronous code execution.
+
+User: What are Burp extensions?
+Agent: Burp extensions add functionality through BApp Store. Popular ones include Logger++, Autorize, JSON Web Tokens, and custom scanners for specific vulnerabilities.
+
+User: What is ZAP proxy?
+Agent: OWASP ZAP is an open-source web application security scanner. It provides automated scanning, manual testing tools, fuzzing, and spider for discovery.
+
+User: What is web application firewall?
+Agent: WAF filters, monitors, and blocks HTTP traffic to web applications. It protects against OWASP Top 10, rate limits requests, and provides virtual patching.
+
+User: How do you bypass WAF?
+Agent: Use encoding variations, case changes, comments in payloads, alternative syntax, parameter pollution, IP rotation, and slow requests to evade detection.
+
+User: What is ModSecurity?
+Agent: ModSecurity is an open-source WAF module for Apache, Nginx, and IIS. It uses rule sets like OWASP Core Rule Set to detect attacks.
+
+User: What is virtual patching?
+Agent: Virtual patching protects vulnerable applications through WAF rules without modifying code. It provides immediate protection while permanent fixes are developed.
+
+User: What is mobile application security?
+Agent: Mobile app security addresses insecure data storage, weak cryptography, improper platform usage, insecure communication, and client-side injection vulnerabilities.
+
+User: What is OWASP Mobile Top 10?
+Agent: OWASP Mobile Top 10 lists critical mobile security risks including improper platform usage, insecure data storage, insecure communication, and code tampering.
+
+User: What is certificate pinning?
+Agent: Certificate pinning associates servers with specific certificates or public keys. It prevents man-in-the-middle attacks by rejecting unexpected certificates.
+
+User: What is root detection?
+Agent: Root detection checks if device is rooted or jailbroken. Rooted devices bypass security controls enabling data access, code modification, and privilege escalation.
+
+User: How do you test Android applications?
+Agent: Decompile APK with apktool, analyze with jadx, intercept traffic through proxy, test for insecure storage, weak crypto, and exported components.
+
+User: How do you test iOS applications?
+Agent: Jailbreak device, extract IPA, use tools like Frida for runtime manipulation, analyze plists, test keychain storage, and intercept SSL/TLS traffic.
+
+User: What is Frida?
+Agent: Frida is a dynamic instrumentation toolkit for injecting JavaScript into applications. It enables runtime analysis, bypassing controls, and hooking functions.
+
+User: What is network penetration testing?
+Agent: Network pentesting assesses infrastructure security through scanning, service exploitation, post-exploitation, lateral movement, and data exfiltration simulation.
+
+User: What is network segmentation testing?
+Agent: Network segmentation testing verifies isolation between network zones. It attempts lateral movement from DMZ to internal networks and between VLANs.
+
+User: What is wireless penetration testing?
+Agent: Wireless pentesting assesses WiFi security including encryption strength, authentication mechanisms, rogue AP detection, and client isolation testing.
+
+User: What is WPA2 handshake capture?
+Agent: WPA2 handshake capture records four-way handshake between client and access point. The captured hash is cracked offline using wordlists.
+
+User: What is WPS attack?
+Agent: WPS (WiFi Protected Setup) attack exploits PIN authentication design flaws. Tools like Reaver perform brute force requiring only 11,000 attempts.
+
+User: What is evil twin attack?
+Agent: Evil twin creates rogue access point with same SSID as legitimate network. Clients connect allowing interception of traffic and credential harvesting.
+
+User: What is deauthentication attack?
+Agent: Deauth attack sends forged deauthentication frames disconnecting clients. It forces handshake capture or drives clients to evil twin access points.
+
+User: What tools are used for WiFi hacking?
+Agent: Aircrack-ng suite for cracking, Wireshark for packet analysis, Kismet for detection, Wifite for automation, and Reaver for WPS attacks.
+
+User: What is Aircrack-ng?
+Agent: Aircrack-ng is a suite of WiFi security tools including airodump-ng for capture, aireplay-ng for injection, and aircrack-ng for cracking WEP/WPA.
+
+User: What is Wireshark?
+Agent: Wireshark is a network protocol analyzer capturing and inspecting packet data. It decodes protocols, follows streams, and filters traffic for analysis.
+
+User: What is packet sniffing?
+Agent: Packet sniffing captures network traffic for analysis. It reveals unencrypted data, credentials, application behavior, and network topology.
+
+User: What is ARP spoofing?
+Agent: ARP spoofing sends fake ARP messages associating attacker's MAC with another host's IP. It redirects traffic through attacker for interception.
+
+User: What is MAC flooding?
+Agent: MAC flooding overwhelms switch MAC address tables with fake entries. Switches fail open broadcasting traffic, enabling sniffing in switched networks.
+
+User: What is VLAN hopping?
+Agent: VLAN hopping exploits switch misconfigurations to access other VLANs. Methods include double tagging and switch spoofing through DTP negotiation.
+
+User: What is SSH tunneling?
+Agent: SSH tunneling encrypts traffic through SSH connections. It provides secure communication, bypasses firewalls, and enables port forwarding for restricted access.
+
+User: What is VPN security testing?
+Agent: VPN testing assesses encryption strength, authentication mechanisms, DNS leaks, IPv6 leaks, kill switch functionality, and vulnerability to traffic analysis.
+
+User: What is SSL/TLS security?
+Agent: SSL/TLS security includes strong cipher suites, current protocols, proper certificate validation, perfect forward secrecy, and protection against downgrade attacks.
+
+User: What is SSL strip attack?
+Agent: SSL strip downgrades HTTPS to HTTP by rewriting links. It enables cleartext interception when users click HTTP links before HTTPS redirect.
+
+User: What is DNS hijacking?
+Agent: DNS hijacking alters DNS settings redirecting traffic to malicious servers. It occurs through router compromise, malware, or ISP-level manipulation.
+
+User: What is DNS tunneling?
+Agent: DNS tunneling exfiltrates data or establishes C2 channels through DNS queries and responses. It bypasses firewalls that allow DNS traffic.
+
+User: What is DNSSEC?
+Agent: DNS Security Extensions cryptographically sign DNS records to ensure authenticity and integrity. It prevents DNS spoofing and cache poisoning attacks.
+User: What is BGP hijacking?
+Agent: BGP hijacking announces false routing information to redirect internet traffic. Attackers intercept communications by claiming ownership of IP address blocks.
+User: What is man-in-the-middle attack?
+Agent: MITM intercepts communication between two parties without their knowledge. Attackers eavesdrop, modify data, or impersonate either party in the exchange.
+User: What is SSL/TLS man-in-the-middle?
+Agent: SSL MITM intercepts encrypted connections through certificate substitution. It requires tricking victims into accepting fraudulent certificates or compromising certificate authorities.
+User: What is password cracking?
+Agent: Password cracking recovers passwords from hashes or encrypted data. Methods include dictionary attacks, brute force, rainbow tables, and hybrid approaches.
+User: What is John the Ripper?
+Agent: John the Ripper is a password cracking tool supporting numerous hash formats. It uses wordlists, rules, and brute force to recover passwords efficiently.
+User: What is Hashcat?
+Agent: Hashcat is a GPU-accelerated password cracking tool. It's extremely fast, supports hundreds of hash types, and uses optimized kernels for maximum performance.
+User: What is a rainbow table?
+Agent: Rainbow tables are precomputed hash chains for password cracking. They trade storage space for computation time, accelerating hash reversal significantly.
+User: What is hash salting?
+Agent: Salting adds random data to passwords before hashing. Unique salts per password prevent rainbow table attacks and make identical passwords hash differently.
+User: What is bcrypt?
+Agent: Bcrypt is an adaptive password hashing function with configurable work factor. It's designed to be slow, making brute force attacks computationally expensive.
+User: What is Hydra?
+Agent: Hydra performs fast network login cracking supporting numerous protocols including SSH, FTP, HTTP, SMB, and databases. It parallelizes authentication attempts.
+User: What is credential stuffing?
+Agent: Credential stuffing uses breached credential pairs from one service to compromise accounts on other services. It exploits widespread password reuse.
+User: What is pass-the-hash?
+Agent: Pass-the-hash uses NTLM hashes for authentication without cracking passwords. It's effective in Windows environments for lateral movement.
+User: What is Mimikatz?
+Agent: Mimikatz extracts credentials from Windows memory including plaintext passwords, hashes, Kerberos tickets, and certificates. It's essential for Windows post-exploitation.
+User: What is Kerberos?
+Agent: Kerberos is a network authentication protocol using tickets instead of passwords. It provides mutual authentication and prevents replay attacks.
+User: What is Kerberoasting?
+Agent: Kerberoasting requests service tickets for accounts with SPNs, extracts encrypted portions, and cracks them offline to recover service account passwords.
+User: What is Golden Ticket attack?
+Agent: Golden Ticket forges Kerberos Ticket Granting Tickets using KRBTGT hash. It provides domain-wide persistence and access to any service indefinitely.
+User: What is Silver Ticket attack?
+Agent: Silver Ticket forges service tickets using service account hashes. It provides access to specific services without contacting domain controller.
+User: What is Active Directory penetration testing?
+Agent: AD pentesting targets user enumeration, password policies, privilege escalation, Kerberos attacks, trust relationships, and domain controller compromise.
+User: What is BloodHound?
+Agent: BloodHound maps Active Directory relationships revealing attack paths to domain admin. It uses graph theory to identify shortest privilege escalation routes.
+User: What is PowerView?
+Agent: PowerView is a PowerShell tool for Active Directory reconnaissance. It enumerates users, groups, trusts, ACLs, and identifies misconfigured permissions.
+User: What is Responder?
+Agent: Responder poisons LLMNR, NBT-NS, and MDNS requests to capture NTLMv1/v2 hashes. It exploits Windows name resolution fallback mechanisms.
+User: What is LLMNR poisoning?
+Agent: LLMNR poisoning responds to name resolution broadcasts with attacker's IP. When victims connect, it captures authentication hashes for cracking.
+User: What is SMB relay attack?
+Agent: SMB relay forwards captured authentication to other systems without cracking. It exploits SMB signing disabled for lateral movement and privilege escalation.
+User: What is DCSync attack?
+Agent: DCSync impersonates domain controller to request password hashes from actual DC. It requires replication rights and dumps all domain credentials.
+User: What is privilege escalation on Windows?
+Agent: Windows privilege escalation exploits unquoted service paths, weak permissions, DLL hijacking, registry autoruns, scheduled tasks, and kernel exploits.
+User: What is unquoted service path?
+Agent: Unquoted service paths with spaces allow DLL hijacking. Windows searches each directory for executables, executing attacker's file if placed correctly.
+User: What is DLL hijacking?
+Agent: DLL hijacking places malicious DLLs in search path before legitimate ones. Applications load attacker's DLL instead of intended library.
+User: What is UAC bypass?
+Agent: UAC bypass elevates privileges without prompting users. Methods include fodhelper, eventvwr, and exploiting auto-elevate executables with specific integrity levels.
+User: What is token impersonation?
+Agent: Token impersonation assumes security context of other users. Tools like Incognito and Meterpreter impersonate tokens from memory for privilege escalation.
+User: What is privilege escalation on Linux?
+Agent: Linux privilege escalation exploits SUID binaries, sudo misconfigurations, cron jobs, kernel vulnerabilities, writable files, and PATH manipulation.
+User: What is SUID binary exploitation?
+Agent: SUID binaries run with owner's privileges. Exploitable SUID root binaries enable privilege escalation through command injection or misuse.
+User: What is sudo misconfiguration?
+Agent: Sudo misconfigurations allow privilege escalation through wildcards, environment variables like LD_PRELOAD, or exploitable binaries run as root.
+User: What is dirty COW?
+Agent: Dirty COW (CVE-2016-5195) is a Linux kernel race condition enabling privilege escalation. It exploits copy-on-write mechanism to modify read-only files.
+User: What is Linux Exploit Suggester?
+Agent: Linux Exploit Suggester identifies kernel vulnerabilities based on version. It recommends applicable exploits for privilege escalation based on system information.
+User: What is lateral movement?
+Agent: Lateral movement navigates compromised networks accessing additional systems. Techniques include credential reuse, pass-the-hash, remote execution, and exploiting trusts.
+User: What is PsExec?
+Agent: PsExec executes processes on remote Windows systems. It's used for legitimate administration but also enables lateral movement with credentials.
+User: What is WMI for lateral movement?
+Agent: Windows Management Instrumentation enables remote command execution without creating services. It's stealthier than PsExec for lateral movement.
+User: What is PowerShell remoting?
+Agent: PowerShell remoting uses WinRM for remote administration. It enables lateral movement, command execution, and script deployment across Windows networks.
+User: What is SSH for lateral movement?
+Agent: SSH provides secure remote access in Unix/Linux environments. With compromised credentials or keys, it enables lateral movement across networks.
+User: What is pivoting?
+Agent: Pivoting uses compromised systems as proxies to access otherwise unreachable networks. It extends attack reach through multi-hop network traversal.
+User: What is port forwarding?
+Agent: Port forwarding redirects traffic from one port to another, locally or remotely. It enables access to internal services through compromised edge systems.
+User: What is SSH tunneling for pivoting?
+Agent: SSH tunneling creates encrypted channels through compromised hosts. It forwards ports or creates SOCKS proxies for accessing internal networks.
+User: What is Metasploit?
+Agent: Metasploit is a penetration testing framework with exploits, payloads, auxiliary modules, and post-exploitation tools. It streamlines vulnerability exploitation.
+User: What is Meterpreter?
+Agent: Meterpreter is an advanced payload providing interactive shells, file system access, network pivoting, privilege escalation, and persistence mechanisms.
+User: What are Metasploit modules?
+Agent: Exploits compromise systems, payloads execute on targets, auxiliary modules scan and attack, encoders obfuscate payloads, and NOPs ensure exploitation reliability.
+User: What is staged vs stageless payload?
+Agent: Staged payloads download additional components after initial execution. Stageless payloads contain everything, larger but more reliable in restricted environments.
+User: What is payload encoding?
+Agent: Payload encoding obfuscates malicious code to evade antivirus and intrusion detection. Encoders like shikata_ga_nai transform payloads multiple times.
+User: What is post-exploitation?
+Agent: Post-exploitation activities after initial compromise include privilege escalation, persistence, lateral movement, data gathering, and covering tracks.
+User: What is persistence?
+Agent: Persistence maintains access across reboots and security updates. Techniques include scheduled tasks, registry run keys, services, DLL hijacking, and bootkit installation.
+User: What are Windows persistence techniques?
+Agent: Registry autoruns, scheduled tasks, WMI event subscriptions, service creation, DLL hijacking, startup folder, accessibility features backdoors, and account creation.
+User: What are Linux persistence techniques?
+Agent: Cron jobs, bashrc modifications, SSH authorized keys, init scripts, systemd services, LD_PRELOAD, PAM backdoors, and kernel module rootkits.
+User: What is data exfiltration?
+Agent: Data exfiltration transfers stolen data from compromised systems. Methods include encrypted channels, DNS tunneling, steganography, and cloud service abuse.
+User: What is steganography?
+Agent: Steganography hides data within other files like images or audio. It conceals communication existence unlike encryption which just protects content.
+User: What is covert channel?
+Agent: Covert channels transmit data through unintended communication paths. Examples include timing channels, DNS queries, ICMP tunneling, and HTTP headers.
+User: What is living off the land?
+Agent: Living off the land uses legitimate system tools for malicious purposes. It avoids custom malware detection by exploiting trusted built-in utilities.
+User: What are LOLBins?
+Agent: Living Off the Land Binaries are legitimate Windows executables abused for attacks. Examples include certutil for downloads, regsvr32 for execution.
+User: What is PowerShell for attacks?
+Agent: PowerShell enables fileless attacks, downloading and executing code in memory. It accesses Windows APIs, bypasses restrictions, and evades detection.
+User: What is reflective DLL injection?
+Agent: Reflective DLL injection loads libraries into memory without touching disk. It bypasses file-based detection by implementing custom loaders.
+User: What is process injection?
+Agent: Process injection inserts code into running processes to evade detection and escalate privileges. Techniques include DLL injection, process hollowing, and APC injection.
+User: What is process hollowing?
+Agent: Process hollowing creates legitimate processes in suspended state, replaces memory with malicious code, and resumes execution appearing as legitimate process.
+User: What is social engineering?
+Agent: Social engineering manipulates people into divulging information or performing actions. It exploits psychological vulnerabilities rather than technical flaws.
+User: What is phishing?
+Agent: Phishing uses fraudulent communications impersonating trusted entities to steal credentials, distribute malware, or manipulate victims into harmful actions.
+User: What is spear phishing?
+Agent: Spear phishing targets specific individuals with personalized messages. It uses reconnaissance to craft convincing scenarios increasing success rates significantly.
+User: What is whaling?
+Agent: Whaling targets high-profile individuals like executives. These sophisticated attacks exploit authority and access to valuable information and resources.
+User: What is vishing?
+Agent: Vishing is voice phishing using phone calls to extract information. Attackers impersonate legitimate organizations creating urgency to manipulate victims.
+User: What is smishing?
+Agent: Smishing uses SMS messages for phishing attacks. Text messages contain malicious links or request sensitive information through mobile channels.
+User: What is pretexting?
+Agent: Pretexting creates fabricated scenarios to manipulate targets. Attackers establish trust through false identities before requesting sensitive information.
+User: What is baiting?
+Agent: Baiting entices victims with promises of goods or services. Physical media like infected USB drives or online downloads containing malware.
+User: What is tailgating?
+Agent: Tailgating gains physical access by following authorized personnel through secured entrances. It exploits social courtesy and lack of challenge procedures.
+User: What is quid pro quo?
+Agent: Quid pro quo offers services in exchange for information. Attackers pose as technical support requesting credentials or system access.
+User: What is watering hole attack?
+Agent: Watering hole compromises websites frequently visited by targets. It infects legitimate sites to distribute malware to specific victim groups.
+User: What is business email compromise?
+Agent: BEC impersonates executives or partners to authorize fraudulent transactions. It combines social engineering with email spoofing for financial fraud.
+User: What is phishing framework?
+Agent: Phishing frameworks like Gophish and SET automate campaign creation, credential harvesting, and victim tracking. They simulate attacks for training.
+User: What is SET?
+Agent: Social Engineer Toolkit automates social engineering attacks including phishing, credential harvesting, infectious media, and fake access points.
+User: What is physical penetration testing?
+Agent: Physical pentesting assesses physical security controls through lock picking, badge cloning, tailgating, dumpster diving, and social engineering.
+User: What is lock picking?
+Agent: Lock picking manipulates lock components to open without keys. It tests physical security by bypassing locks, demonstrating facility access vulnerabilities.
+User: What is badge cloning?
+Agent: Badge cloning duplicates RFID access cards. Attackers scan legitimate badges from distance and create clones for unauthorized facility access.
+User: What is dumpster diving?
+Agent: Dumpster diving searches trash for sensitive information. Discarded documents, hardware, and media reveal credentials, network diagrams, and business intelligence.
+User: What is a malicious USB drop?
+Agent: Malicious USB drops place infected drives in target locations. Curious employees plug them in, automatically executing malware and compromising systems.
+User: What is red team operations?
+Agent: Red team simulates sophisticated adversaries testing detection and response capabilities. Operations span months using stealth, persistence, and multiple attack vectors.
+User: What is purple team?
+Agent: Purple team combines red and blue team efforts. Red teams share techniques while blue teams improve detection, fostering collaborative security enhancement.
+User: What is blue team?
+Agent: Blue team defends infrastructure by monitoring, detecting, and responding to threats. They implement security controls and investigate incidents.
+User: What is threat hunting?
+Agent: Threat hunting proactively searches for hidden threats that evade automated detection. Hunters use intelligence, analytics, and experience to find adversaries.
+User: What is indicators of compromise?
+Agent: IOCs are forensic artifacts indicating security breaches. They include malicious IPs, file hashes, domain names, registry keys, and behavioral patterns.
+User: What is threat intelligence?
+Agent: Threat intelligence provides actionable information about current and emerging threats including TTPs, indicators, and adversary attribution.
+User: What is MITRE ATT&CK?
+Agent: MITRE ATT&CK framework catalogs adversary tactics, techniques, and procedures. It provides common language for describing and analyzing cyber attacks.
+User: What are ATT&CK tactics?
+Agent: Tactics represent adversary objectives: initial access, execution, persistence, privilege escalation, defense evasion, credential access, discovery, lateral movement, collection, exfiltration, and impact.
+User: What is initial access?
+Agent: Initial access establishes foothold in networks through phishing, exploiting public-facing applications, valid accounts, supply chain compromise, or trusted relationships.
+User: What is execution technique?
+Agent: Execution runs adversary-controlled code through command interpreters, scripting, exploitation, scheduled tasks, or user execution.
+User: What is defense evasion?
+Agent: Defense evasion avoids detection through obfuscation, disabling security tools, masquerading, process injection, and removing artifacts.
+User: What is credential access?
+Agent: Credential access obtains passwords and tokens through credential dumping, brute force, input capture, man-in-the-middle, or stealing credential files.
+User: What is discovery?
+Agent: Discovery gathers information about systems and networks through account discovery, network scanning, process enumeration, and system information collection.
+User: What is collection technique?
+Agent: Collection aggregates information for exfiltration through clipboard data, screen capture, keylogging, email collection, and data staging.
+User: What is command and control?
+Agent: C2 communicates with compromised systems through application layer protocols, encrypted channels, web services, or custom protocols.
+User: What is exfiltration technique?
+Agent: Exfiltration transfers data to attacker-controlled systems through encrypted channels, alternative protocols, scheduled transfers, or physical media.
+User: What is impact technique?
+Agent: Impact manipulates, interrupts, or destroys systems and data through encryption for ransom, defacement, data destruction, or denial of service.
+User: What is cybersecurity framework?
+Agent: Cybersecurity frameworks provide structured approaches to managing security risk. Examples include NIST CSF, ISO 27001, CIS Controls, and COBIT.
+User: What is NIST Cybersecurity Framework?
+Agent: NIST CSF organizes security activities into identify, protect, detect, respond, and recover functions providing risk-based approach to security management.
+User: What is ISO 27001?
+Agent: ISO 27001 is international standard for information security management systems. It provides requirements for establishing, implementing, and improving security controls.
+User: What is CIS Controls?
+Agent: CIS Critical Security Controls are prioritized best practices for cyber defense. Twenty controls address common attack vectors and vulnerabilities.
+User: What is security operations center?
+Agent: SOC monitors, detects, analyzes, and responds to security incidents. It provides centralized security monitoring and incident management capabilities.
+User: What is SIEM?
+Agent: Security Information and Event Management aggregates logs, correlates events, and provides real-time analysis. It enables centralized security monitoring.
+User: What is log aggregation?
+Agent: Log aggregation collects logs from multiple sources into centralized systems. It enables correlation, analysis, compliance, and incident investigation.
+User: What is incident response?
+Agent: Incident response manages security breaches through preparation, identification, containment, eradication, recovery, and lessons learned phases.
+User: What is incident response plan?
+Agent: IR plan documents procedures, roles, communication protocols, and escalation paths for security incidents. It ensures coordinated and effective response.
+User: What is containment strategy?
+Agent: Containment limits incident damage and prevents spread. Short-term containment isolates affected systems, long-term containment implements temporary fixes.
+User: What is eradication?
+Agent: Eradication removes threat causes including malware, backdoors, compromised accounts, and vulnerabilities preventing recurrence.
+User: What is recovery phase?
+Agent: Recovery restores systems to normal operation, validates security, monitors for reinfection, and implements improvements based on lessons learned.
+User: What is digital forensics?
+Agent: Digital forensics investigates incidents by collecting, preserving, analyzing, and presenting digital evidence. It supports legal proceedings and incident reconstruction.
+User: What is forensic imaging?
+Agent: Forensic imaging creates bit-by-bit copies of storage media preserving evidence. Images maintain chain of custody and enable analysis without altering originals.
+User: What is volatile data collection?
+Agent: Volatile data exists in memory and disappears when systems power off. Collection captures running processes, network connections, and memory contents first.
+User: What is memory forensics?
+Agent: Memory forensics analyzes RAM dumps for malware, credentials, encryption keys, network connections, and attacker activities invisible to disk-based analysis.
+User: What is network forensics?
+Agent: Network forensics captures and analyzes network traffic. It reconstructs attacks, identifies data exfiltration, and provides evidence of lateral movement.
+User: What is chain of custody?
+Agent: Chain of custody documents evidence handling from collection through presentation. It ensures integrity and admissibility in legal proceedings.
+User: What is malware analysis?
+Agent: Malware analysis examines malicious software to understand functionality, indicators, and impact. Static analysis inspects code, dynamic analysis observes behavior.
+User: What is static malware analysis?
+Agent: Static analysis examines malware without execution. It includes string analysis, disassembly, identifying packers, and examining file properties.
+User: What is dynamic malware analysis?
+Agent: Dynamic analysis executes malware in sandboxed environments observing behavior, network activity, file modifications, and registry changes.
+User: What is sandboxing?
+Agent: Sandboxing isolates untrusted programs in controlled environments preventing system damage. It safely analyzes malware behavior and tests suspicious files.
+User: What is reverse engineering?
+Agent: Reverse engineering analyzes software to understand functionality without source code. It uses disassemblers, debuggers, and decompilers.
+User: What is IDA Pro?
+Agent: IDA Pro is a disassembler and debugger for reverse engineering. It provides interactive analysis, scripting, and extensive processor support.
+User: What is Ghidra?
+Agent: Ghidra is NSA's free reverse engineering tool. It includes disassembly, decompilation, scripting, and collaborative analysis capabilities.
+User: What is x64dbg?
+Agent: x64dbg is an open-source debugger for Windows. It provides breakpoints, memory dumps, and plugin extensibility for malware analysis.
+User: What is OllyDbg?
+Agent: OllyDbg is a 32-bit debugger emphasizing binary code analysis. It's useful for analyzing executables without source code.
+User: What is packing?
+Agent: Packing compresses and encrypts executables hiding original code. It evades signature-based detection requiring unpacking before analysis.
+User: What is obfuscation?
+Agent: Obfuscation deliberately makes code difficult to understand. Techniques include encryption, control flow modification, and meaningless code insertion.
+User: What is code cave?
+Agent: Code caves are unused spaces in executables. Attackers inject malicious code into these areas maintaining functionality while adding backdoors.
+User: What is API hooking?
+Agent: API hooking intercepts function calls redirecting execution to attacker code. It enables monitoring, modification, or blocking of system operations.
+User: What is keylogger?
+Agent: Keyloggers record keystrokes capturing credentials, messages, and sensitive input. They operate through software hooks or hardware devices.
+User: What is screen scraper?
+Agent: Screen scrapers capture screen contents periodically. They record user activities, credentials from virtual keyboards, and sensitive displayed information.
+User: What is RAT?
+Agent: Remote Access Trojans provide unauthorized remote control of systems. They offer file access, command execution, screen viewing, and surveillance capabilities.
+User: What is botnet?
+Agent: Botnets are networks of compromised devices controlled centrally. They enable DDoS attacks, spam campaigns, credential stuffing, and cryptocurrency mining.
+User: What is command and control server?
+Agent: C2 servers control compromised systems, issue commands, receive stolen data, and distribute updates. They use various protocols for stealth.
+User: What is beaconing?
+Agent: Beaconing periodically contacts C2 servers for commands. Regular intervals establish communication channels while attempting to blend with normal traffic.
+User: What is domain generation algorithm?
+Agent: DGA generates large numbers of domain names for C2 communication. It provides resilience against takedowns by dynamically changing C2 addresses.
+User: What is fast flux?
+Agent: Fast flux rapidly changes DNS records and proxies for C2 infrastructure. It makes takedowns difficult by constantly moving command servers.
+User: What is cryptojacking?
+Agent: Cryptojacking uses compromised systems for unauthorized cryptocurrency mining. It consumes resources, increases costs, and degrades performance.
+User: What is ransomware?
+Agent: Ransomware encrypts victim data demanding payment for decryption. It spreads through phishing, exploits, and RDP, causing significant business disruption.
+User: What is WannaCry?
+Agent: WannaCry ransomware spread using EternalBlue SMB exploit. It infected hundreds of thousands of systems globally in 2017.
+User: What is NotPetya?
+Agent: NotPetya masqueraded as ransomware but was actually destructive wiper. It caused billions in damages through rapid spreading and permanent encryption.
+User: What is double extortion?
+Agent: Double extortion combines data encryption with exfiltration threats. Victims face both data loss and public exposure motivating ransom payment.
+User: What is wiper malware?
+Agent: Wiper malware permanently destroys data without recovery options. It targets master boot records, filesystems, and critical system files.
+User: What is supply chain attack?
+Agent: Supply chain attacks compromise software or hardware before reaching victims. They exploit trust in vendors to distribute malware at scale.
+User: What is SolarWinds attack?
+Agent: SolarWinds supply chain attack compromised Orion software updates. Sophisticated threat actor infected thousands of organizations including government agencies.
+User: What is watering hole attack?
+Agent: Watering hole compromises sites frequented by targets. It exploits trust to infect specific victim groups with targeted malware.
+User: What is drive-by download?
+Agent: Drive-by downloads install malware through compromised websites without user interaction. They exploit browser and plugin vulnerabilities automatically.
+User: What is exploit kit?
+Agent: Exploit kits are automated frameworks detecting vulnerabilities and delivering exploits. They typically target browsers, plugins, and common applications.
+User: What is zero-day exploit?
+Agent: Zero-day exploits target unknown vulnerabilities before patches exist. They're highly valuable and often used in targeted attacks.
+User: What is CVE-2021-44228?
+Agent: Log4Shell (CVE-2021-44228) enables remote code execution through Java logging library. It affects millions of applications requiring urgent patching.
+User: What is vulnerability management?
+Agent: Vulnerability management identifies, classifies, prioritizes, remediates, and tracks security weaknesses. It reduces attack surface through systematic patching.
+User: What is patch management?
+Agent: Patch management tests, approves, and deploys security updates. It balances security needs with system stability and change control.
+User: What is configuration management?
+Agent: Configuration management maintains consistent, secure system configurations. It documents baselines, tracks changes, and enforces security standards.
+User: What is change management?
+Agent: Change management controls IT changes through approval, testing, and documentation. It prevents unauthorized modifications and maintains security posture.
+User: What is vulnerability assessment vs penetration testing?
+Agent: Vulnerability assessments identify and classify weaknesses systematically. Penetration tests exploit vulnerabilities demonstrating real-world impact and business risk.
+User: What is automated scanning vs manual testing?
+Agent: Automated scanning quickly identifies known vulnerabilities across many systems. Manual testing finds complex logic flaws and chains vulnerabilities for greater impact.
+User: What is scope in penetration testing?
+Agent: Scope defines testing boundaries including target systems, testing methods, time windows, and excluded systems. Clear scope prevents unauthorized access.
+User: What is rules of engagement?
+Agent: Rules of engagement specify testing constraints, communication protocols, emergency contacts, and authorized techniques ensuring safe, legal testing.
+User: What is penetration testing methodology?
+Agent: Pentesting methodologies provide structured approaches. PTES, OWASP, OSSTMM, and NIST provide frameworks ensuring comprehensive security assessments.
+User: What is PTES?
+Agent: Penetration Testing Execution Standard defines technical guidelines for penetration testing including intelligence gathering, threat modeling, exploitation, and reporting.
+User: What is OWASP Testing Guide?
+Agent: OWASP Testing Guide provides comprehensive web application security testing methodology covering information gathering, configuration testing, and specific vulnerability testing.
+User: What is bug bounty program?
+Agent: Bug bounty programs reward security researchers for finding vulnerabilities. Companies leverage crowdsourced security to identify issues before exploitation.
+User: What is responsible disclosure?
+Agent: Responsible disclosure reports vulnerabilities to vendors privately allowing time for fixes before public disclosure. It balances transparency with user protection.
+User: What is coordinated vulnerability disclosure?
+Agent: Coordinated disclosure involves researchers, vendors, and coordinators agreeing on disclosure timelines. CVD ensures stakeholders prepare before public release.
+User: What is full disclosure?
+Agent: Full disclosure immediately releases vulnerability details publicly. It pressures vendors to patch but potentially enables exploitation before fixes.
+User: What is security through obscurity?
+Agent: Security through obscurity relies on secrecy rather than strong design. It's ineffective as attackers eventually discover hidden weaknesses.
+User: What is defense in depth?
+Agent: Defense in depth implements multiple security layers. If one control fails, others still protect assets through redundant, overlapping security measures.
+User: What is least privilege principle?
+Agent: Least privilege grants minimum access required for tasks. It limits damage from compromised accounts, insider threats, and privilege escalation.
+User: What is separation of duties?
+Agent: Separation of duties divides critical functions among multiple people. It prevents single individuals from compromising security or committing fraud.
+User: What is zero trust architecture?
+Agent: Zero trust assumes breach and verifies every access request. It eliminates implicit trust, continuously validates users and devices regardless of location.
+User: What is microsegmentation?
+Agent: Microsegmentation divides networks into small isolated zones. It limits lateral movement by enforcing granular access controls between workloads.
+User: What is software-defined perimeter?
+Agent: SDP creates dynamic perimeters around resources making them invisible until identity verification. It implements zero trust network access principles.
+User: What is endpoint detection and response?
+Agent: EDR continuously monitors endpoints detecting suspicious behavior. It provides visibility, investigation capabilities, and automated response to threats.
+User: What is extended detection and response?
+Agent: XDR correlates data across endpoints, networks, cloud, and email. It provides unified visibility and coordinated response across security tools.
+User: What is threat intelligence platform?
+Agent: TIP aggregates, correlates, and enriches threat intelligence from multiple sources. It operationalizes intelligence for detection and response.
+User: What is security orchestration and automation?
+Agent: SOAR automates security workflows, integrates tools, and orchestrates responses. It reduces response times and analyst workload through automation.
+User: What is user and entity behavior analytics?
+Agent: UEBA establishes behavioral baselines detecting anomalies indicating compromise. It identifies insider threats and compromised accounts through machine learning.
+User: What is deception technology?
+Agent: Deception deploys decoys and honeypots detecting attackers. It provides early warning and gathers intelligence on adversary techniques.
+User: What is honeypot?
+Agent: Honeypots are decoy systems designed to attract attackers. They detect intrusions, waste attacker time, and gather intelligence without risking production.
+User: What is honeynet?
+Agent: Honeynets are networks of honeypots simulating realistic environments. They provide deeper insight into attack methodologies and tool usage.
+User: What is canary tokens?
+Agent: Canary tokens are tripwires embedded in documents, URLs, or systems. They alert when accessed indicating compromise or unauthorized activity.
+User: What is penetration testing report?
+Agent: Pentest reports document findings including executive summary, methodology, vulnerabilities discovered, proof-of-concept, risk ratings, and remediation recommendations.
+User: What is executive summary in pentesting?
+Agent: Executive summary provides high-level overview for non-technical stakeholders. It summarizes risks, business impact, and strategic recommendations concisely.
+User: What is technical report in pentesting?
+Agent: Technical report details methodologies, findings, exploitation steps, evidence, and specific remediation guidance for technical teams implementing fixes.
+User: What is risk rating?
+Agent: Risk rating combines likelihood and impact classifying vulnerability severity. CVSS, DREAD, and custom matrices guide prioritization of remediation efforts.
+User: What is remediation guidance?
+Agent: Remediation guidance provides specific steps to fix vulnerabilities. It includes configuration changes, patches, code modifications, and validation procedures.
+User: What is continuous security testing?
+Agent: Continuous testing integrates security throughout development. It includes SAST, DAST, dependency scanning, and infrastructure testing in CI/CD pipelines.
+User: What is DevSecOps?
+Agent: DevSecOps integrates security into development and operations. It shifts security left, automates testing, and makes security everyone's responsibility.
+User: What is shift-left security?
+Agent: Shift-left introduces security early in development lifecycle. It catches vulnerabilities before production reducing cost and time to remediate.
+User: What is SAST?
+Agent: Static Application Security Testing analyzes source code without execution. It identifies vulnerabilities like injection, weak crypto, and insecure configurations.
+User: What is DAST?
+Agent: Dynamic Application Security Testing tests running applications. It identifies runtime vulnerabilities, configuration issues, and authentication flaws.
+User: What is IAST?
+Agent: Interactive Application Security Testing combines SAST and DAST using instrumented applications. It provides accurate findings with low false positives.
+User: What is SCA?
+Agent: Software Composition Analysis identifies open-source components and vulnerabilities. It manages license compliance and tracks dependency risks.
+User: What is container security scanning?
+Agent: Container scanning analyzes images for vulnerabilities, misconfigurations, and secrets. It integrates into CI/CD preventing vulnerable deployments.
+User: What is infrastructure as code scanning?
+Agent: IaC scanning analyzes Terraform, CloudFormation, and Kubernetes configs for security issues. It catches misconfigurations before infrastructure deployment.
+User: What is secrets management?
+Agent: Secrets management securely stores and accesses credentials, API keys, and certificates. It prevents hardcoding secrets in code and configuration files.
+User: Thank you for all the cybersecurity knowledge!
+Agent: You're welcome! Remember to always practice ethical hacking, obtain proper authorization, and continuously learn as the threat landscape evolves. Stay secure!

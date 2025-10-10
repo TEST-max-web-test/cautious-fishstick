@@ -1,7 +1,18 @@
 # Centralized configuration for model, training, and inference
-# Includes preset sizes: small, medium, large
+# CPU-OPTIMIZED VERSION
 
 # Model Presets
+TINY_MODEL = {
+    'vocab_size': 50258,
+    'hidden_size': 128,
+    'num_layers': 2,
+    'num_heads': 4,
+    'ff_expansion': 2,
+    'num_experts': 2,
+    'moe_k': 1,
+    'seq_len': 256,
+}
+
 SMALL_MODEL = {
     'vocab_size': 50258,
     'hidden_size': 256,
@@ -10,7 +21,7 @@ SMALL_MODEL = {
     'ff_expansion': 2,
     'num_experts': 4,
     'moe_k': 2,
-    'seq_len': 1024,
+    'seq_len': 512,
 }
 
 MEDIUM_MODEL = {
@@ -21,40 +32,29 @@ MEDIUM_MODEL = {
     'ff_expansion': 4,
     'num_experts': 8,
     'moe_k': 2,
-    'seq_len': 2048,
+    'seq_len': 1024,
 }
 
-LARGE_MODEL = {
-    'vocab_size': 50258,
-    'hidden_size': 1024,
-    'num_layers': 12,
-    'num_heads': 16,
-    'ff_expansion': 4,
-    'num_experts': 16,
-    'moe_k': 2,
-    'seq_len': 4096,
-}
-
-# Default to SMALL for fast testing
-MODEL_CONFIG = SMALL_MODEL
+# Default to TINY for CPU (won't run out of memory)
+MODEL_CONFIG = TINY_MODEL
 
 TRAIN_CONFIG = {
-    'batch_size': 4,
-    'lr': 3e-4,
-    'epochs': 5,  # Increased from 1 for better training
-    'clip': 1.0,
-    'ema_decay': 0.999,
-    'val_split': 0.1,
+    'batch_size': 1,  # CRITICAL: Use batch_size=1 on CPU to save memory
+    'lr': 1e-3,  # Higher LR for CPU training
+    'epochs': 2,  # Reduced for testing
+    'clip': 0.5,  # Lower clipping threshold
+    'ema_decay': 0.99,  # Faster EMA decay
+    'val_split': 0.2,  # More validation data
     'checkpoint_path': 'utils/checkpoint.pt',
-    'warmup_steps': 500,  # NEW: Learning rate warmup
-    'patience': 3,  # NEW: Early stopping patience
-    'gradient_accumulation_steps': 1,  # NEW: For larger effective batch size
-    'log_interval': 10,  # NEW: Logging interval
+    'warmup_steps': 10,  # Fewer warmup steps
+    'patience': 2,  # Early stopping after 2 epochs
+    'gradient_accumulation_steps': 1,  # No accumulation needed
+    'log_interval': 1,  # Log every batch
 }
 
 INFER_CONFIG = {
-    'max_response_length': 100,  # Increased from 50
-    'temperature': 0.8,  # Lowered from 1.0 for more focused responses
-    'top_p': 0.9,  # Lowered from 0.95
-    'top_k': 40,  # NEW: Top-k sampling
+    'max_response_length': 50,  # Shorter generations on CPU
+    'temperature': 0.7,
+    'top_p': 0.9,
+    'top_k': 20,  # Smaller top-k for faster inference
 }
