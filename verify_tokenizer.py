@@ -6,7 +6,7 @@ import sys
 import os
 
 # Add parent directory to path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '.')))
 
 from ai_cybersec_custom.tokenizer.custom_tokenizer import CustomTokenizer
 from ai_cybersec_custom.utils.config import MODEL_CONFIG
@@ -15,11 +15,25 @@ print("="*70)
 print("🔍 TOKENIZER & CONFIG VERIFICATION")
 print("="*70)
 
-# Load tokenizer
-tokenizer_path = 'bpe.model'
-if not os.path.exists(tokenizer_path):
-    print(f"❌ ERROR: {tokenizer_path} not found!")
-    print(f"   Please run: python ai_cybersec_custom/tokenizer/train_tokenizer.py")
+# ✅ FIXED: Look for tokenizer in the correct location
+tokenizer_paths = [
+    'bpe.model',
+    'ai_cybersec_custom/tokenizer/bpe.model',
+    os.path.join(os.path.dirname(__file__), 'ai_cybersec_custom/tokenizer/bpe.model'),
+]
+
+tokenizer_path = None
+for path in tokenizer_paths:
+    if os.path.exists(path):
+        tokenizer_path = path
+        print(f"✅ Found tokenizer at: {tokenizer_path}")
+        break
+
+if tokenizer_path is None:
+    print(f"❌ ERROR: bpe.model not found in any expected location:")
+    for path in tokenizer_paths:
+        print(f"   - {os.path.abspath(path)}")
+    print(f"\n🔧 Please run: python ai_cybersec_custom/tokenizer/train_tokenizer.py")
     sys.exit(1)
 
 print(f"\n📂 Loading tokenizer from {tokenizer_path}...")
@@ -94,6 +108,8 @@ if os.path.exists(corpus_path):
         sys.exit(1)
     else:
         print(f"   ✅ All corpus tokens within valid range")
+else:
+    print(f"   ⚠️  No corpus found at {corpus_path}")
 
 print("\n" + "="*70)
 print("✅ ALL CHECKS PASSED! Ready to train.")
