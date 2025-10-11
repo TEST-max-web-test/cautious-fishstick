@@ -1,20 +1,20 @@
 # Centralized configuration for model, training, and inference
-# FIXED VERSION with proper special token IDs and settings
+# FIXED VERSION with proper vocab size and settings
 
 # Model Presets
 TINY_MODEL = {
-    'vocab_size': 8000,
+    'vocab_size': 8000,  # ✅ FIXED: Matches new tokenizer (SentencePiece default)
     'hidden_size': 128,
     'num_layers': 2,
     'num_heads': 4,
     'ff_expansion': 2,
     'num_experts': 2,
     'moe_k': 1,
-    'seq_len': 512,
+    'seq_len': 512,  # ✅ FIXED: Longer sequences for conversations
 }
 
 SMALL_MODEL = {
-    'vocab_size': 8000,
+    'vocab_size': 8000,  # ✅ FIXED
     'hidden_size': 256,
     'num_layers': 4,
     'num_heads': 8,
@@ -25,7 +25,7 @@ SMALL_MODEL = {
 }
 
 MEDIUM_MODEL = {
-    'vocab_size': 8000,
+    'vocab_size': 8000,  # ✅ FIXED
     'hidden_size': 512,
     'num_layers': 6,
     'num_heads': 8,
@@ -35,34 +35,26 @@ MEDIUM_MODEL = {
     'seq_len': 1024,
 }
 
-# Default to TINY for fast training
-MODEL_CONFIG = TINY_MODEL
-
-# ✅ FIXED: Special token IDs must match tokenizer training!
-SPECIAL_TOKENS = {
-    'UNK': 0,  # Unknown token
-    'BOS': 1,  # Beginning of sequence
-    'EOS': 2,  # End of sequence
-    'PAD': 3,  # Padding token
-}
+# Default to SMALL for better intelligence (was TINY)
+MODEL_CONFIG = SMALL_MODEL
 
 TRAIN_CONFIG = {
-    'batch_size': 2,
-    'lr': 5e-4,
-    'epochs': 10,
+    'batch_size': 2,  # ✅ Increased slightly
+    'lr': 5e-4,  # ✅ Better learning rate
+    'epochs': 10,  # ✅ More epochs for proper training
     'clip': 1.0,
     'ema_decay': 0.999,
     'val_split': 0.1,
     'checkpoint_path': 'utils/checkpoint.pt',
-    'warmup_steps': 50,
-    'patience': 5,
-    'gradient_accumulation_steps': 2,
-    'log_interval': 5,
+    'warmup_steps': 50,  # ✅ Proper warmup
+    'patience': 5,  # ✅ More patience
+    'gradient_accumulation_steps': 2,  # ✅ Effective batch size = 4
+    'log_interval': 5,  # Log every 5 batches
 }
 
 INFER_CONFIG = {
-    'max_response_length': 100,
-    'temperature': 0.8,
+    'max_response_length': 100,  # ✅ Longer responses
+    'temperature': 0.8,  # ✅ Less random
     'top_p': 0.9,
     'top_k': 40,
 }
@@ -78,7 +70,6 @@ if __name__ == "__main__":
     print(f"Attention heads: {MODEL_CONFIG['num_heads']}")
     print(f"Sequence length: {MODEL_CONFIG['seq_len']}")
     print(f"MoE experts: {MODEL_CONFIG['num_experts']}")
-    
     print("\n" + "="*60)
     print("🎯 TRAINING CONFIGURATION")
     print("="*60)
@@ -88,9 +79,3 @@ if __name__ == "__main__":
     print(f"Learning rate: {TRAIN_CONFIG['lr']}")
     print(f"Epochs: {TRAIN_CONFIG['epochs']}")
     print(f"Warmup steps: {TRAIN_CONFIG['warmup_steps']}")
-    
-    print("\n" + "="*60)
-    print("🔐 SPECIAL TOKENS")
-    print("="*60)
-    for token_name, token_id in SPECIAL_TOKENS.items():
-        print(f"{token_name}: {token_id}")

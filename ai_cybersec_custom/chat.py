@@ -7,12 +7,30 @@ import os
 
 def load_model_and_tokenizer(device: str = 'cpu'):
     """Load model and tokenizer from checkpoint."""
-    checkpoint_path = os.path.join(os.path.dirname(__file__), '../' + TRAIN_CONFIG['checkpoint_path'])
-    bpe_model_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../bpe.model'))
-    if not os.path.exists(bpe_model_path):
-        bpe_model_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../bpe.model'))
+    # ✅ FIXED: Try multiple paths for tokenizer
+    possible_tokenizer_paths = [
+        'ai_cybersec_custom/tokenizer/bpe.model',
+        'bpe.model',
+        os.path.join(os.path.dirname(__file__), 'tokenizer/bpe.model'),
+        os.path.join(os.path.dirname(__file__), '../bpe.model'),
+    ]
     
-    tokenizer = CustomTokenizer(bpe_model_path)
+    tokenizer_path = None
+    for path in possible_tokenizer_paths:
+        if os.path.exists(path):
+            tokenizer_path = path
+            break
+    
+    if not tokenizer_path:
+        print("❌ ERROR: Could not find bpe.model in any of these locations:")
+        for path in possible_tokenizer_paths:
+            print(f"   - {os.path.abspath(path)}")
+        raise FileNotFoundError("bpe.model not found!")
+    
+    print(f"📂 Loading tokenizer from: {tokenizer_path}")
+    tokenizer = CustomTokenizer(tokenizer_path)
+    
+    # Load model
     model = CustomTransformer(
         MODEL_CONFIG['vocab_size'],
         MODEL_CONFIG['hidden_size'],
@@ -21,12 +39,15 @@ def load_model_and_tokenizer(device: str = 'cpu'):
         MODEL_CONFIG['ff_expansion']
     )
     
+    # Load checkpoint
+    checkpoint_path = TRAIN_CONFIG['checkpoint_path']
     if os.path.exists(checkpoint_path):
-        state_dict = torch.load(checkpoint_path, map_location=device)
+        state_dict = torch.load(checkpoint_path, map_location=device, weights_only=True)
         model.load_state_dict(state_dict, strict=False)
         print(f"✅ Loaded checkpoint from {checkpoint_path}")
     else:
         print(f"⚠️  No checkpoint found at {checkpoint_path}")
+        print(f"   Model will use random weights (not trained)")
     
     model = model.to(device)
     model.eval()
@@ -35,35 +56,22 @@ def load_model_and_tokenizer(device: str = 'cpu'):
 
 def top_p_top_k_sampling(logits: torch.Tensor, top_p: float = 0.95, 
                          top_k: int = 40, temperature: float = 1.0) -> int:
-    """
-    Apply combined top-p and top-k sampling.
-    
-    Args:
-        logits: Model output logits for last token
-        top_p: Nucleus sampling threshold (0.95 = keep top 95%)
-        top_k: Keep only top k most likely tokens
-        temperature: Softness of distribution (lower = more deterministic)
-    
-    Returns:
-        next_token: Selected token ID
-    """
+    """Apply combined top-p and top-k sampling."""
     logits = logits / temperature
     
-    # Top-k: keep only top k logits
+    # Top-k
     if top_k > 0:
         indices_to_remove = logits < torch.topk(logits, top_k)[0][..., -1, None]
         logits[indices_to_remove] = float('-inf')
     
-    # Top-p: keep only top p% of probability mass
+    # Top-p
     sorted_logits, sorted_indices = torch.sort(logits, descending=True)
     cumulative_probs = torch.cumsum(torch.softmax(sorted_logits, dim=-1), dim=-1)
     
-    # Find cutoff index for top-p
     sorted_indices_to_remove = cumulative_probs > top_p
-    sorted_indices_to_remove[..., 0] = False  # Keep at least one token
+    sorted_indices_to_remove[..., 0] = False
     sorted_logits[sorted_indices_to_remove] = float('-inf')
     
-    # Add small epsilon for numerical stability
     probs = torch.softmax(sorted_logits + 1e-10, dim=-1)
     next_idx = torch.multinomial(probs, num_samples=1)
     next_token = sorted_indices[next_idx].item()
@@ -73,31 +81,28 @@ def top_p_top_k_sampling(logits: torch.Tensor, top_p: float = 0.95,
 
 def generate_response(model: torch.nn.Module, tokenizer: CustomTokenizer, 
                      prompt: str, device: str = 'cpu') -> str:
-    """
-    Generate response from prompt using the model.
-    
-    Args:
-        model: Language model
-        tokenizer: Tokenizer instance
-        prompt: Input text
-        device: Device to run on
-    
-    Returns:
-        response: Generated text
-    """
+    """Generate response from prompt using the model."""
     max_length = INFER_CONFIG['max_response_length']
     temperature = INFER_CONFIG['temperature']
     top_p = INFER_CONFIG['top_p']
     top_k = INFER_CONFIG.get('top_k', 40)
     
+    # Format prompt properly
+    formatted_prompt = f"User: {prompt}\nAgent:"
+    
     # Encode prompt
-    ids = tokenizer.encode(prompt, add_bos=True)
+    ids = tokenizer.encode(formatted_prompt, add_bos=True)
     response_ids = ids.copy()
     
     # Generate tokens autoregressively
     with torch.no_grad():
         for step in range(max_length):
             input_tensor = torch.tensor([response_ids], dtype=torch.long, device=device)
+            
+            # Truncate if too long
+            if input_tensor.size(1) > MODEL_CONFIG['seq_len']:
+                input_tensor = input_tensor[:, -MODEL_CONFIG['seq_len']:]
+            
             logits, _ = model(input_tensor)
             next_token = top_p_top_k_sampling(
                 logits[0, -1], 
@@ -106,22 +111,37 @@ def generate_response(model: torch.nn.Module, tokenizer: CustomTokenizer,
                 temperature=temperature
             )
             
-            # Stop if EOS token is generated
+            # Stop conditions
             if next_token == tokenizer.EOS:
+                break
+            if next_token == tokenizer.PAD:
                 break
             
             response_ids.append(next_token)
     
     # Decode response (exclude prompt)
     generated = response_ids[len(ids):]
-    response = tokenizer.decode(generated) if generated else "(No response generated)"
+    if generated:
+        try:
+            response = tokenizer.decode(generated)
+            # Clean up response
+            response = response.strip()
+            # Stop at "User:" if model generates next turn
+            if "User:" in response:
+                response = response.split("User:")[0].strip()
+        except Exception as e:
+            print(f"⚠️  Decode error: {e}")
+            response = "(Error decoding response)"
+    else:
+        response = "(No response generated)"
+    
     return response
 
 
 def chat():
     """Interactive chat loop with the model."""
     print("\n" + "="*70)
-    print("🤖 CUSTOM TRANSFORMER CHAT AGENT")
+    print("🤖 CUSTOM TRANSFORMER CHAT AGENT - CYBERSECURITY ASSISTANT")
     print("="*70)
     
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -129,38 +149,55 @@ def chat():
     print("💬 Type 'exit' to quit, 'clear' to clear history")
     print("="*70 + "\n")
     
-    model, tokenizer = load_model_and_tokenizer(device=device)
-    print(f"✅ Model ready | Parameters: {model.num_parameters:,}\n")
+    try:
+        model, tokenizer = load_model_and_tokenizer(device=device)
+        print(f"✅ Model ready | Parameters: {model.num_parameters:,}")
+        print(f"   Vocab size: {tokenizer.vocab_size()}")
+        print(f"   Special tokens: PAD={tokenizer.PAD}, BOS={tokenizer.BOS}, EOS={tokenizer.EOS}\n")
+    except Exception as e:
+        print(f"\n❌ Failed to load model: {e}")
+        print("\nPlease ensure:")
+        print("  1. Tokenizer trained: python ai_cybersec_custom/tokenizer/train_tokenizer.py")
+        print("  2. Model trained: PYTHONPATH=./ python ai_cybersec_custom/train/train.py")
+        return
     
     conversation_history = []
     
     while True:
-        prompt = input("👤 You: ").strip()
-        
-        if prompt.lower() == 'exit':
-            print("\n👋 Goodbye!")
+        try:
+            prompt = input("👤 You: ").strip()
+            
+            if prompt.lower() == 'exit':
+                print("\n👋 Goodbye! Stay secure!")
+                break
+            
+            if prompt.lower() == 'clear':
+                conversation_history = []
+                print("🗑️  Conversation history cleared\n")
+                continue
+            
+            if not prompt:
+                print("⚠️  Please enter a message\n")
+                continue
+            
+            # Add to history
+            conversation_history.append(("user", prompt))
+            
+            # Generate response
+            print("🤔 Generating response...", end=" ", flush=True)
+            response = generate_response(model, tokenizer, prompt, device=device)
+            print("\r" + " " * 50 + "\r", end="")  # Clear "Generating..." line
+            print(f"🤖 Agent: {response}\n")
+            
+            # Add response to history
+            conversation_history.append(("agent", response))
+            
+        except KeyboardInterrupt:
+            print("\n\n👋 Interrupted. Goodbye!")
             break
-        
-        if prompt.lower() == 'clear':
-            conversation_history = []
-            print("🗑️  Conversation history cleared\n")
-            continue
-        
-        if not prompt:
-            print("⚠️  Please enter a message\n")
-            continue
-        
-        # Add to history
-        conversation_history.append(("user", prompt))
-        
-        # Generate response
-        print("🤔 Generating response...", end=" ", flush=True)
-        response = generate_response(model, tokenizer, prompt, device=device)
-        print("\n")
-        print(f"🤖 Agent: {response}\n")
-        
-        # Add response to history
-        conversation_history.append(("agent", response))
+        except Exception as e:
+            print(f"\n❌ Error: {e}")
+            print("Continuing...\n")
 
 
 def main():
