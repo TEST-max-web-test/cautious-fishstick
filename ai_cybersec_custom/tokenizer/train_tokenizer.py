@@ -31,12 +31,12 @@ if __name__ == "__main__":
     print(f"\n🚀 Training tokenizer...")
     print(f"   Input: {corpus_path}")
     print(f"   Output: {output_prefix}.model")
-    print(f"   Vocab size: 8000")
+    print(f"   Vocab size: 2000 (optimized for small datasets)")
     
     tokenizer.train(
         corpus_path, 
         output_prefix, 
-        vocab_size=8000,
+        vocab_size=2000,  # ✅ CHANGED: 2000 for small datasets (was 8000)
         model_type='bpe'
     )
     
