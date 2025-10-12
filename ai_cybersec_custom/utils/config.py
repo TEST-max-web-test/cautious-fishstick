@@ -3,18 +3,18 @@
 
 # Model Presets
 TINY_MODEL = {
-    'vocab_size': 8000,  # ✅ FIXED: Matches new tokenizer (SentencePiece default)
+    'vocab_size': 8000,
     'hidden_size': 128,
     'num_layers': 2,
     'num_heads': 4,
     'ff_expansion': 2,
     'num_experts': 2,
     'moe_k': 1,
-    'seq_len': 512,  # ✅ FIXED: Longer sequences for conversations
+    'seq_len': 512,
 }
 
 SMALL_MODEL = {
-    'vocab_size': 8000,  # ✅ FIXED
+    'vocab_size': 8000,
     'hidden_size': 256,
     'num_layers': 4,
     'num_heads': 8,
@@ -25,7 +25,7 @@ SMALL_MODEL = {
 }
 
 MEDIUM_MODEL = {
-    'vocab_size': 8000,  # ✅ FIXED
+    'vocab_size': 8000,
     'hidden_size': 512,
     'num_layers': 6,
     'num_heads': 8,
@@ -35,26 +35,35 @@ MEDIUM_MODEL = {
     'seq_len': 1024,
 }
 
-# Default to SMALL for better intelligence (was TINY)
+# Default to SMALL for better intelligence
 MODEL_CONFIG = SMALL_MODEL
 
+# ✅ FIXED: Added SPECIAL_TOKENS that was referenced but missing
+# Each special token MUST have unique ID (SentencePiece requirement)
+SPECIAL_TOKENS = {
+    'PAD': 0,
+    'UNK': 1,  # ✅ CHANGED: Was 0, now 1 (must be unique!)
+    'BOS': 2,  # ✅ CHANGED: Was 1, now 2
+    'EOS': 3,  # ✅ CHANGED: Was 2, now 3
+}
+
 TRAIN_CONFIG = {
-    'batch_size': 2,  # ✅ Increased slightly
-    'lr': 5e-4,  # ✅ Better learning rate
-    'epochs': 10,  # ✅ More epochs for proper training
+    'batch_size': 2,
+    'lr': 5e-4,
+    'epochs': 10,
     'clip': 1.0,
     'ema_decay': 0.999,
     'val_split': 0.1,
-    'checkpoint_path': 'utils/checkpoint.pt',
-    'warmup_steps': 50,  # ✅ Proper warmup
-    'patience': 5,  # ✅ More patience
-    'gradient_accumulation_steps': 2,  # ✅ Effective batch size = 4
-    'log_interval': 5,  # Log every 5 batches
+    'checkpoint_path': 'utils/checkpoint.pt',  # ✅ FIXED: Relative to train directory
+    'warmup_steps': 50,
+    'patience': 5,
+    'gradient_accumulation_steps': 2,
+    'log_interval': 5,
 }
 
 INFER_CONFIG = {
-    'max_response_length': 100,  # ✅ Longer responses
-    'temperature': 0.8,  # ✅ Less random
+    'max_response_length': 100,
+    'temperature': 0.8,
     'top_p': 0.9,
     'top_k': 40,
 }

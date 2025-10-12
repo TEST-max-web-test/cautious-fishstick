@@ -4,12 +4,24 @@ from torch.optim import AdamW
 from torch.utils.data import DataLoader
 import math
 import os
+import sys
 from datetime import datetime
+
+# ✅ FIX: Add parent directory to Python path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 from ai_cybersec_custom.model.custom_transformer import CustomTransformer
 from ai_cybersec_custom.data.text_dataset import TextDataset
 from ai_cybersec_custom.tokenizer.custom_tokenizer import CustomTokenizer
 from ai_cybersec_custom.utils.config import MODEL_CONFIG, TRAIN_CONFIG, SPECIAL_TOKENS
+
+# ✅ FIX: Import sklearn
+try:
+    from sklearn.model_selection import train_test_split
+except ImportError:
+    print("❌ ERROR: scikit-learn not installed")
+    print("   Please run: pip install scikit-learn")
+    sys.exit(1)
 
 
 def compute_perplexity(loss: float) -> float:
@@ -91,14 +103,34 @@ log_interval = TRAIN_CONFIG['log_interval']
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 print(f"📍 Device: {device}")
 
+# ✅ FIX: Proper path resolution for tokenizer
+script_dir = os.path.dirname(os.path.abspath(__file__))
+tokenizer_path = os.path.join(script_dir, '../tokenizer/bpe.model')
+
+# Verify tokenizer exists
+if not os.path.exists(tokenizer_path):
+    print(f"\n❌ ERROR: Tokenizer not found at {tokenizer_path}")
+    print(f"   Absolute path: {os.path.abspath(tokenizer_path)}")
+    print("\n🔧 Please train tokenizer first:")
+    print("   cd ai_cybersec_custom/tokenizer")
+    print("   python train_tokenizer.py")
+    sys.exit(1)
+
 # Load tokenizer and dataset
 print("\n📂 Loading tokenizer and dataset...")
-tokenizer = CustomTokenizer(os.path.join(os.path.dirname(__file__), '../../bpe.model'))
-corpus_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../data/corpus.txt'))
+tokenizer = CustomTokenizer(tokenizer_path)
+
+# ✅ FIX: Proper path resolution for corpus
+corpus_path = os.path.join(script_dir, '../data/corpus.txt')
+
+if not os.path.exists(corpus_path):
+    print(f"\n❌ ERROR: Corpus not found at {corpus_path}")
+    print(f"   Absolute path: {os.path.abspath(corpus_path)}")
+    sys.exit(1)
+
 dataset = TextDataset(corpus_path, tokenizer, seq_len)
 
 # Split into train/val
-from sklearn.model_selection import train_test_split
 all_indices = list(range(len(dataset)))
 train_indices, val_indices = train_test_split(all_indices, test_size=0.1, random_state=42)
 train_sampler = torch.utils.data.SubsetRandomSampler(train_indices)
@@ -113,7 +145,7 @@ print(f"✅ Loaded {len(dataset)} samples | Train: {len(train_indices)}, Val: {l
 print(f"🤖 Building model: {num_layers}L x {hidden_size}D with {num_heads} heads...")
 model = CustomTransformer(vocab_size, hidden_size, num_layers, num_heads, ff_expansion)
 model = model.to(device)
-print(f"✅ Model on {device}")
+print(f"✅ Model on {device} | Parameters: {model.num_parameters:,}")
 
 # Optimizer with weight decay
 optimizer = AdamW(model.parameters(), lr=lr, weight_decay=0.01)
@@ -127,8 +159,14 @@ ema = EMA(model, decay=0.999)
 best_val_ppl = float('inf')
 patience_counter = 0
 
-# ✅ FIXED: Loss function with ignore_index for PAD token
+# ✅ FIX: Loss function with ignore_index for PAD token
 loss_fn = nn.CrossEntropyLoss(ignore_index=SPECIAL_TOKENS['PAD'])
+
+# ✅ FIX: Create checkpoint directory if it doesn't exist
+checkpoint_dir = os.path.dirname(checkpoint_path)
+if checkpoint_dir and not os.path.exists(checkpoint_dir):
+    os.makedirs(checkpoint_dir)
+    print(f"📁 Created checkpoint directory: {checkpoint_dir}")
 
 # Training loop
 print(f"\n🚀 Starting training for {epochs} epochs...\n")
@@ -193,9 +231,6 @@ for epoch in range(epochs):
     if val_ppl < best_val_ppl:
         best_val_ppl = val_ppl
         patience_counter = 0
-        checkpoint_dir = os.path.dirname(checkpoint_path)
-        if not os.path.exists(checkpoint_dir):
-            os.makedirs(checkpoint_dir)
         torch.save(model.state_dict(), checkpoint_path)
         print(f"   ✅ Saved best checkpoint (val_ppl={val_ppl:.2f})")
     else:
