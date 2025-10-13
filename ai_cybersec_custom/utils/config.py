@@ -1,55 +1,40 @@
-# Optimized configuration for SMALL dataset training
-# This will actually work with 150-500 samples
+# Configuration for Advanced Reasoning Transformer
 
-# Ultra-tiny model for small datasets
-ULTRA_TINY_MODEL = {
-    'vocab_size': 2000,  # ✅ Much smaller vocab for limited data
-    'hidden_size': 64,   # ✅ Tiny hidden size
-    'num_layers': 2,     # ✅ Only 2 layers
-    'num_heads': 4,      # ✅ Fewer heads
-    'ff_expansion': 2,   # ✅ Smaller feedforward
-    'num_experts': 1,    # ✅ NO MoE (too complex for small data)
-    'moe_k': 1,
-    'seq_len': 256,      # ✅ Shorter sequences
-}
-
-TINY_MODEL = {
+# Small but smart model for ~600 line corpus
+REASONING_SMALL = {
     'vocab_size': 2000,
-    'hidden_size': 128,
-    'num_layers': 3,
-    'num_heads': 4,
-    'ff_expansion': 2,
-    'num_experts': 2,
-    'moe_k': 1,
-    'seq_len': 256,
-}
-
-SMALL_MODEL = {
-    'vocab_size': 2000,  # ✅ Reduced from 8000
-    'hidden_size': 256,
-    'num_layers': 4,
-    'num_heads': 8,
-    'ff_expansion': 2,
-    'num_experts': 4,
-    'moe_k': 2,
+    'hidden_size': 256,     # Larger hidden size for better representations
+    'num_layers': 6,        # Deeper for reasoning
+    'num_heads': 8,         # More heads for attention
+    'ff_expansion': 4,      # Wider FFN for processing
+    'dropout': 0.1,         # Prevent overfitting
     'seq_len': 512,
 }
 
-MEDIUM_MODEL = {
-    'vocab_size': 8000,
-    'hidden_size': 512,
-    'num_layers': 6,
+# Medium model for better results (if you have GPU)
+REASONING_MEDIUM = {
+    'vocab_size': 2000,
+    'hidden_size': 384,
+    'num_layers': 8,
     'num_heads': 8,
     'ff_expansion': 4,
-    'num_experts': 8,
-    'moe_k': 2,
-    'seq_len': 1024,
+    'dropout': 0.1,
+    'seq_len': 512,
 }
 
-# ✅ USE ULTRA_TINY for datasets < 1000 samples
-# ✅ USE TINY for datasets 1000-5000 samples  
-# ✅ USE SMALL for datasets 5000-50000 samples
-MODEL_CONFIG = ULTRA_TINY_MODEL  # ✅ CHANGED: Was SMALL_MODEL
+# Tiny model for CPU/quick testing
+REASONING_TINY = {
+    'vocab_size': 2000,
+    'hidden_size': 128,
+    'num_layers': 4,
+    'num_heads': 4,
+    'ff_expansion': 4,
+    'dropout': 0.1,
+    'seq_len': 512,
+}
+
+# Use SMALL by default (good balance)
+MODEL_CONFIG = REASONING_SMALL
 
 SPECIAL_TOKENS = {
     'PAD': 0,
@@ -59,44 +44,97 @@ SPECIAL_TOKENS = {
 }
 
 TRAIN_CONFIG = {
-    'batch_size': 4,      # ✅ Increased from 2
-    'lr': 1e-3,           # ✅ Higher learning rate for faster learning
-    'epochs': 100,        # ✅ INCREASED from 10 (need much more)
-    'clip': 1.0,
+    'batch_size': 8,           # Larger batches for stable training
+    'lr': 3e-4,                # Standard transformer learning rate
+    'epochs': 200,             # More epochs needed for reasoning
+    'clip': 1.0,               # Gradient clipping
     'ema_decay': 0.999,
     'val_split': 0.1,
-    'checkpoint_path': 'utils/checkpoint.pt',
-    'warmup_steps': 20,   # ✅ Reduced warmup
-    'patience': 20,       # ✅ More patience
-    'gradient_accumulation_steps': 1,  # ✅ No accumulation for small model
-    'log_interval': 5,
+    'checkpoint_path': 'ai_cybersec_custom/train/utils/checkpoint.pt',
+    'warmup_steps': 100,       # Longer warmup for stability
+    'patience': 30,            # More patience for deeper model
+    'gradient_accumulation_steps': 2,  # Effective batch size = 16
+    'log_interval': 10,
+    
+    # New: Label smoothing to prevent overconfidence
+    'label_smoothing': 0.1,
+    
+    # New: Weight decay for regularization
+    'weight_decay': 0.01,
 }
 
 INFER_CONFIG = {
-    'max_response_length': 50,   # ✅ Shorter responses
-    'temperature': 1.0,          # ✅ Higher temp for more variety
-    'top_p': 0.95,
-    'top_k': 20,                 # ✅ Lower for more focused sampling
+    'max_response_length': 100,    # Longer responses
+    'temperature': 0.8,            # Balanced creativity
+    'top_p': 0.92,                 # Nucleus sampling
+    'top_k': 50,                   # Consider top 50 tokens
+    
+    # New: Repetition penalty to avoid loops
+    'repetition_penalty': 1.2,
 }
 
 # Print config info
 if __name__ == "__main__":
-    print("="*60)
-    print("📋 OPTIMIZED MODEL CONFIGURATION")
-    print("="*60)
-    print(f"Model: ULTRA_TINY (for small datasets)")
-    print(f"Vocabulary size: {MODEL_CONFIG['vocab_size']}")
-    print(f"Hidden size: {MODEL_CONFIG['hidden_size']}")
-    print(f"Layers: {MODEL_CONFIG['num_layers']}")
-    print(f"Attention heads: {MODEL_CONFIG['num_heads']}")
-    print(f"Sequence length: {MODEL_CONFIG['seq_len']}")
-    print(f"\nParameters estimate: ~100K (vs 8M before)")
-    print("\n" + "="*60)
-    print("🎯 OPTIMIZED TRAINING CONFIGURATION")
-    print("="*60)
-    print(f"Batch size: {TRAIN_CONFIG['batch_size']}")
-    print(f"Learning rate: {TRAIN_CONFIG['lr']}")
-    print(f"Epochs: {TRAIN_CONFIG['epochs']} (was 10)")
-    print(f"Patience: {TRAIN_CONFIG['patience']}")
-    print("\n💡 This config is optimized for 150-500 training samples")
-    print("   For better results, expand your corpus to 1000+ samples")
+    print("="*70)
+    print("🧠 ADVANCED REASONING MODEL CONFIGURATION")
+    print("="*70)
+    print(f"\nModel: REASONING_SMALL")
+    print(f"  Vocabulary size: {MODEL_CONFIG['vocab_size']}")
+    print(f"  Hidden size: {MODEL_CONFIG['hidden_size']}")
+    print(f"  Layers: {MODEL_CONFIG['num_layers']}")
+    print(f"  Attention heads: {MODEL_CONFIG['num_heads']}")
+    print(f"  FF expansion: {MODEL_CONFIG['ff_expansion']}")
+    print(f"  Dropout: {MODEL_CONFIG['dropout']}")
+    print(f"  Sequence length: {MODEL_CONFIG['seq_len']}")
+    
+    # Estimate parameters
+    params = (
+        MODEL_CONFIG['vocab_size'] * MODEL_CONFIG['hidden_size'] +  # Embeddings
+        MODEL_CONFIG['num_layers'] * (
+            4 * MODEL_CONFIG['hidden_size']**2 +  # Attention QKV + output
+            3 * MODEL_CONFIG['hidden_size'] * MODEL_CONFIG['hidden_size'] * MODEL_CONFIG['ff_expansion']  # FFN
+        )
+    )
+    print(f"\n  Estimated parameters: ~{params//1000}K")
+    
+    print(f"\n" + "="*70)
+    print("🎯 TRAINING CONFIGURATION")
+    print("="*70)
+    print(f"  Batch size: {TRAIN_CONFIG['batch_size']} (x{TRAIN_CONFIG['gradient_accumulation_steps']} accum)")
+    print(f"  Effective batch: {TRAIN_CONFIG['batch_size'] * TRAIN_CONFIG['gradient_accumulation_steps']}")
+    print(f"  Learning rate: {TRAIN_CONFIG['lr']}")
+    print(f"  Epochs: {TRAIN_CONFIG['epochs']}")
+    print(f"  Warmup steps: {TRAIN_CONFIG['warmup_steps']}")
+    print(f"  Patience: {TRAIN_CONFIG['patience']}")
+    print(f"  Label smoothing: {TRAIN_CONFIG['label_smoothing']}")
+    print(f"  Weight decay: {TRAIN_CONFIG['weight_decay']}")
+    
+    print(f"\n" + "="*70)
+    print("💬 INFERENCE CONFIGURATION")
+    print("="*70)
+    print(f"  Max response length: {INFER_CONFIG['max_response_length']}")
+    print(f"  Temperature: {INFER_CONFIG['temperature']}")
+    print(f"  Top-p: {INFER_CONFIG['top_p']}")
+    print(f"  Top-k: {INFER_CONFIG['top_k']}")
+    print(f"  Repetition penalty: {INFER_CONFIG['repetition_penalty']}")
+    
+    print("\n" + "="*70)
+    print("✨ KEY IMPROVEMENTS")
+    print("="*70)
+    print("  ✅ Deeper architecture (6 layers vs 2-3)")
+    print("  ✅ Better attention with RoPE positional encoding")
+    print("  ✅ Gated FFN for selective reasoning")
+    print("  ✅ Proper dropout to prevent memorization")
+    print("  ✅ Label smoothing for better generalization")
+    print("  ✅ Repetition penalty for varied responses")
+    print("  ✅ Longer training (200 epochs)")
+    
+    print("\n" + "="*70)
+    print("📈 EXPECTED RESULTS")
+    print("="*70)
+    print("  ✅ Generate novel sentences (not memorized)")
+    print("  ✅ Understand context and reasoning")
+    print("  ✅ Generalize to unseen questions")
+    print("  ✅ Varied responses (not repetitive)")
+    print("  ⏱️  Training time: 20-60 minutes (depending on hardware)")
+    print("="*70)
