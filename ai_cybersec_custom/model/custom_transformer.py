@@ -1,5 +1,5 @@
 # MINIMAL WORKING TRANSFORMER
-# Copy this to: ai_cybersec_custom/model/custom_transformer.py
+# Copy this ENTIRE file to: ai_cybersec_custom/model/custom_transformer.py
 
 import torch
 import torch.nn as nn
