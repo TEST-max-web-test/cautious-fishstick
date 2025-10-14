@@ -1,40 +1,40 @@
 #!/usr/bin/env python3
 """
-FIXED CHAT INTERFACE with robust generation
-Addresses: tokenizer consistency, better sampling, repetition prevention
+PRODUCTION CHAT INTERFACE
+Uses the modern transformer's built-in generation method
 """
 import torch
-import torch.nn.functional as F
 import os
 import sys
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from ai_cybersec_custom.model.custom_transformer import CustomTransformer
+from ai_cybersec_custom.model.custom_transformer import ModernTransformer
 from ai_cybersec_custom.tokenizer.custom_tokenizer import CustomTokenizer
 from ai_cybersec_custom.utils.config import MODEL_CONFIG, INFER_CONFIG
 
 
 def load_model(device='cpu'):
-    """Load model and tokenizer"""
+    """Load trained model and tokenizer"""
     script_dir = os.path.dirname(os.path.abspath(__file__))
     
-    # Find tokenizer
+    # Load tokenizer
     tokenizer_path = os.path.join(script_dir, 'tokenizer/bpe.model')
     if not os.path.exists(tokenizer_path):
         print(f"❌ Tokenizer not found: {tokenizer_path}")
+        print("Run: cd ai_cybersec_custom/tokenizer && python3 train_tokenizer.py")
         sys.exit(1)
     
     tokenizer = CustomTokenizer(tokenizer_path)
     
     # Create model
-    model = CustomTransformer(
+    model = ModernTransformer(
         vocab_size=MODEL_CONFIG['vocab_size'],
         hidden_size=MODEL_CONFIG['hidden_size'],
         num_layers=MODEL_CONFIG['num_layers'],
         num_heads=MODEL_CONFIG['num_heads'],
         ff_expansion=MODEL_CONFIG['ff_expansion'],
-        dropout=MODEL_CONFIG['dropout'],
+        dropout=0.0,  # No dropout during inference
         max_seq_len=MODEL_CONFIG['seq_len']
     ).to(device)
     
@@ -51,12 +51,12 @@ def load_model(device='cpu'):
             break
     
     if checkpoint_path:
-        state = torch.load(checkpoint_path, map_location=device)
-        if 'model_state_dict' in state:
-            model.load_state_dict(state['model_state_dict'])
-        else:
-            model.load_state_dict(state)
+        checkpoint = torch.load(checkpoint_path, map_location=device)
+        model.load_state_dict(checkpoint['model_state_dict'])
+        
         print(f"✅ Loaded checkpoint")
+        print(f"   Epoch: {checkpoint.get('epoch', 'unknown')}")
+        print(f"   Val PPL: {checkpoint.get('val_ppl', 'unknown'):.2f}")
     else:
         print("⚠️  No checkpoint found - using untrained model")
     
@@ -64,207 +64,152 @@ def load_model(device='cpu'):
     return model, tokenizer
 
 
-def generate_greedy(model, tokenizer, prompt, device='cpu', max_len=100):
-    """
-    Greedy decoding - always pick most likely token
-    This is deterministic and helps debug if the model learned anything
-    """
-    formatted = f"User: {prompt}\nAgent:"
-    
-    # Encode once and save the length
-    input_ids = tokenizer.encode(formatted, add_bos=True)
-    prompt_length = len(input_ids)
-    
-    ids = input_ids.copy()
-    
-    with torch.no_grad():
-        for _ in range(max_len):
-            x = torch.tensor([ids], device=device)
-            
-            # Truncate if too long
-            if x.size(1) > MODEL_CONFIG['seq_len']:
-                x = x[:, -MODEL_CONFIG['seq_len']:]
-            
-            # Forward
-            logits, _ = model(x)
-            next_logits = logits[0, -1]
-            
-            # Greedy: pick most likely
-            next_token = next_logits.argmax().item()
-            
-            # Stop conditions
-            if next_token in (tokenizer.EOS, tokenizer.PAD):
-                break
-            
-            ids.append(next_token)
-    
-    # Decode only the response part
-    response_ids = ids[prompt_length:]
-    response = tokenizer.decode(response_ids).strip()
-    
-    return response
-
-
-def generate_with_penalties(model, tokenizer, prompt, device='cpu'):
-    """
-    Advanced generation with repetition penalty and better sampling
-    """
-    max_len = INFER_CONFIG['max_response_length']
-    temp = INFER_CONFIG['temperature']
-    top_k = INFER_CONFIG['top_k']
-    top_p = INFER_CONFIG.get('top_p', 0.92)
-    rep_penalty = INFER_CONFIG.get('repetition_penalty', 1.2)
-    
-    formatted = f"User: {prompt}\nAgent:"
-    
-    # Encode once and save the length
-    input_ids = tokenizer.encode(formatted, add_bos=True)
-    prompt_length = len(input_ids)
-    
-    ids = input_ids.copy()
-    generated_tokens = []  # Track what we've generated for repetition penalty
-    
-    with torch.no_grad():
-        for step in range(max_len):
-            x = torch.tensor([ids], device=device)
-            
-            # Truncate if too long
-            if x.size(1) > MODEL_CONFIG['seq_len']:
-                x = x[:, -MODEL_CONFIG['seq_len']:]
-            
-            # Forward
-            logits, _ = model(x)
-            next_logits = logits[0, -1].clone()
-            
-            # Apply repetition penalty
-            if generated_tokens and rep_penalty != 1.0:
-                for token_id in set(generated_tokens):
-                    # If the token has been generated, reduce its probability
-                    if next_logits[token_id] > 0:
-                        next_logits[token_id] /= rep_penalty
-                    else:
-                        next_logits[token_id] *= rep_penalty
-            
-            # Apply temperature
-            next_logits = next_logits / temp
-            
-            # Top-k filtering
-            if top_k > 0:
-                indices_to_remove = next_logits < torch.topk(next_logits, min(top_k, len(next_logits)))[0][..., -1, None]
-                next_logits[indices_to_remove] = float('-inf')
-            
-            # Top-p (nucleus) filtering
-            if top_p < 1.0:
-                sorted_logits, sorted_indices = torch.sort(next_logits, descending=True)
-                cumulative_probs = torch.cumsum(F.softmax(sorted_logits, dim=-1), dim=-1)
-                
-                # Remove tokens with cumulative probability above the threshold
-                sorted_indices_to_remove = cumulative_probs > top_p
-                # Shift the indices to the right to keep the first token above threshold
-                sorted_indices_to_remove[..., 1:] = sorted_indices_to_remove[..., :-1].clone()
-                sorted_indices_to_remove[..., 0] = 0
-                
-                indices_to_remove = sorted_indices[sorted_indices_to_remove]
-                next_logits[indices_to_remove] = float('-inf')
-            
-            # Sample
-            probs = F.softmax(next_logits, dim=-1)
-            
-            # Prevent NaN
-            if torch.isnan(probs).any() or torch.isinf(probs).any():
-                print("⚠️ NaN/Inf in probs, using greedy")
-                next_token = next_logits.argmax().item()
-            else:
-                next_token = torch.multinomial(probs, 1).item()
-            
-            # Stop conditions
-            if next_token in (tokenizer.EOS, tokenizer.PAD):
-                break
-            
-            # Check for degenerate output (too many UNKs or special tokens)
-            if next_token == tokenizer.UNK:
-                if len(generated_tokens) > 5 and generated_tokens[-3:].count(tokenizer.UNK) >= 2:
-                    break  # Too many UNKs in a row
-            
-            ids.append(next_token)
-            generated_tokens.append(next_token)
-            
-            # Emergency stop for repetitive output
-            if len(generated_tokens) > 10:
-                last_5 = generated_tokens[-5:]
-                if len(set(last_5)) <= 2:  # Only 1-2 unique tokens in last 5
-                    break
-    
-    # Decode only the response part
-    response_ids = ids[prompt_length:]
-    response = tokenizer.decode(response_ids).strip()
-    
-    # Clean up common artifacts
-    if "User:" in response:
-        response = response.split("User:")[0].strip()
-    
-    return response
-
-
-def main():
-    print("="*70)
-    print("💬 FIXED CHAT INTERFACE")
+def chat_loop(model, tokenizer, device):
+    """Interactive chat loop"""
+    print("\n" + "="*70)
+    print("💬 CHAT INTERFACE - Type 'help' for commands")
     print("="*70)
     
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    print(f"Device: {device}")
-    print("Commands:")
-    print("  'exit' - quit")
-    print("  'clear' - reset")
-    print("  'greedy' - toggle greedy decoding (for debugging)")
-    print("="*70 + "\n")
+    # Current settings
+    settings = {
+        'temperature': INFER_CONFIG['temperature'],
+        'top_p': INFER_CONFIG['top_p'],
+        'top_k': INFER_CONFIG['top_k'],
+        'repetition_penalty': INFER_CONFIG['repetition_penalty'],
+        'max_length': INFER_CONFIG['max_response_length']
+    }
     
-    model, tokenizer = load_model(device)
-    print(f"Parameters: {model.num_parameters:,}")
-    print(f"Vocab: {tokenizer.vocab_size()}")
-    print(f"Special tokens: PAD={tokenizer.PAD} UNK={tokenizer.UNK} BOS={tokenizer.BOS} EOS={tokenizer.EOS}\n")
-    
-    use_greedy = False
+    print(f"\nSettings:")
+    for key, value in settings.items():
+        print(f"  {key}: {value}")
+    print()
     
     while True:
         try:
-            prompt = input("You: ").strip()
+            user_input = input("You: ").strip()
             
-            if prompt.lower() == 'exit':
+            if not user_input:
+                continue
+            
+            # Commands
+            if user_input.lower() == 'exit':
                 print("Goodbye!")
                 break
             
-            if prompt.lower() == 'clear':
-                print("History cleared\n")
+            if user_input.lower() == 'help':
+                print("\nCommands:")
+                print("  exit - quit")
+                print("  help - show this message")
+                print("  settings - show current settings")
+                print("  temp <value> - set temperature (0.1-2.0)")
+                print("  topp <value> - set top_p (0.1-1.0)")
+                print("  penalty <value> - set repetition penalty (1.0-2.0)")
+                print()
                 continue
             
-            if prompt.lower() == 'greedy':
-                use_greedy = not use_greedy
-                mode = "greedy (deterministic)" if use_greedy else "sampling (with penalties)"
-                print(f"Switched to {mode} mode\n")
+            if user_input.lower() == 'settings':
+                print("\nCurrent settings:")
+                for key, value in settings.items():
+                    print(f"  {key}: {value}")
+                print()
                 continue
             
-            if not prompt:
+            # Setting adjustments
+            if user_input.lower().startswith('temp '):
+                try:
+                    val = float(user_input.split()[1])
+                    settings['temperature'] = max(0.1, min(2.0, val))
+                    print(f"Temperature set to {settings['temperature']}\n")
+                except:
+                    print("Usage: temp <value> (0.1-2.0)\n")
+                continue
+            
+            if user_input.lower().startswith('topp '):
+                try:
+                    val = float(user_input.split()[1])
+                    settings['top_p'] = max(0.1, min(1.0, val))
+                    print(f"Top-p set to {settings['top_p']}\n")
+                except:
+                    print("Usage: topp <value> (0.1-1.0)\n")
+                continue
+            
+            if user_input.lower().startswith('penalty '):
+                try:
+                    val = float(user_input.split()[1])
+                    settings['repetition_penalty'] = max(1.0, min(2.0, val))
+                    print(f"Repetition penalty set to {settings['repetition_penalty']}\n")
+                except:
+                    print("Usage: penalty <value> (1.0-2.0)\n")
                 continue
             
             # Generate response
-            if use_greedy:
-                response = generate_greedy(model, tokenizer, prompt, device)
-            else:
-                response = generate_with_penalties(model, tokenizer, prompt, device)
+            formatted_prompt = f"User: {user_input}\nAgent:"
+            input_ids = torch.tensor(
+                [tokenizer.encode(formatted_prompt, add_bos=True)],
+                device=device
+            )
+            
+            # Generate using model's built-in method
+            with torch.no_grad():
+                output = model.generate(
+                    input_ids,
+                    max_new_tokens=settings['max_length'],
+                    temperature=settings['temperature'],
+                    top_k=settings['top_k'],
+                    top_p=settings['top_p'],
+                    repetition_penalty=settings['repetition_penalty']
+                )
+            
+            # Decode response
+            response_ids = output[0, input_ids.size(1):].tolist()
+            
+            # Remove EOS and PAD tokens
+            response_ids = [
+                tid for tid in response_ids 
+                if tid not in (tokenizer.EOS, tokenizer.PAD)
+            ]
+            
+            response = tokenizer.decode(response_ids).strip()
+            
+            # Clean up artifacts
+            if "User:" in response:
+                response = response.split("User:")[0].strip()
             
             if not response or len(response) < 3:
-                print(f"Agent: [model produced empty/invalid response]\n")
+                print("Agent: [empty response - try adjusting temperature]\n")
             else:
                 print(f"Agent: {response}\n")
-            
+        
         except KeyboardInterrupt:
-            print("\nGoodbye!")
+            print("\n\nGoodbye!")
             break
         except Exception as e:
             print(f"Error: {e}\n")
             import traceback
             traceback.print_exc()
+
+
+def main():
+    print("="*70)
+    print("🤖 AI CYBERSEC ASSISTANT - PRODUCTION VERSION")
+    print("="*70)
+    
+    # Setup device
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    print(f"\nDevice: {device}")
+    
+    if device == 'cuda':
+        print(f"GPU: {torch.cuda.get_device_name(0)}")
+    
+    # Load model
+    model, tokenizer = load_model(device)
+    
+    print(f"\nModel:")
+    print(f"  Parameters: {model.num_parameters:,}")
+    print(f"  Vocabulary: {tokenizer.vocab_size()} tokens")
+    
+    # Start chat
+    chat_loop(model, tokenizer, device)
 
 
 if __name__ == "__main__":

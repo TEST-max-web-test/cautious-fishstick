@@ -1,20 +1,178 @@
-# MINIMAL WORKING TRANSFORMER
-# Copy this ENTIRE file to: ai_cybersec_custom/model/custom_transformer.py
-
+#!/usr/bin/env python3
+"""
+MODERN TRANSFORMER ARCHITECTURE
+Implements techniques from GPT-3/4, LLaMA, and other SOTA models:
+- Rotary Positional Embeddings (RoPE) - better position encoding
+- Pre-Layer Normalization - more stable training
+- SwiGLU activation - better than GELU
+- Proper weight initialization
+- GPU optimized
+"""
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from typing import Tuple
+import math
 
-class SimpleTransformer(nn.Module):
-    """Minimal working transformer - no fancy features, just works"""
+
+class RotaryPositionalEmbedding(nn.Module):
+    """
+    Rotary Position Embeddings (RoPE) from "RoFormer: Enhanced Transformer with Rotary Position Embedding"
+    Used in LLaMA, GPT-NeoX, and other modern LLMs
+    Better than absolute position embeddings for length extrapolation
+    """
+    def __init__(self, dim: int, max_seq_len: int = 2048, base: int = 10000):
+        super().__init__()
+        inv_freq = 1.0 / (base ** (torch.arange(0, dim, 2).float() / dim))
+        self.register_buffer("inv_freq", inv_freq)
+        self.max_seq_len = max_seq_len
+        
+        # Pre-compute for efficiency
+        t = torch.arange(max_seq_len, dtype=torch.float32)
+        freqs = torch.outer(t, inv_freq)
+        emb = torch.cat((freqs, freqs), dim=-1)
+        self.register_buffer("cos_cached", emb.cos()[None, None, :, :])
+        self.register_buffer("sin_cached", emb.sin()[None, None, :, :])
     
+    def forward(self, x: torch.Tensor, seq_len: int):
+        return (
+            self.cos_cached[:, :, :seq_len, ...].to(x.device),
+            self.sin_cached[:, :, :seq_len, ...].to(x.device),
+        )
+
+
+def rotate_half(x):
+    """Rotates half the hidden dims of the input."""
+    x1 = x[..., : x.shape[-1] // 2]
+    x2 = x[..., x.shape[-1] // 2 :]
+    return torch.cat((-x2, x1), dim=-1)
+
+
+def apply_rotary_pos_emb(q, k, cos, sin):
+    """Applies Rotary Position Embedding to q and k tensors."""
+    q_embed = (q * cos) + (rotate_half(q) * sin)
+    k_embed = (k * cos) + (rotate_half(k) * sin)
+    return q_embed, k_embed
+
+
+class RMSNorm(nn.Module):
+    """
+    Root Mean Square Layer Normalization
+    Used in LLaMA - more efficient than LayerNorm
+    """
+    def __init__(self, hidden_size: int, eps: float = 1e-6):
+        super().__init__()
+        self.weight = nn.Parameter(torch.ones(hidden_size))
+        self.eps = eps
+
+    def forward(self, x):
+        variance = x.pow(2).mean(-1, keepdim=True)
+        x = x * torch.rsqrt(variance + self.eps)
+        return self.weight * x
+
+
+class SwiGLU(nn.Module):
+    """
+    SwiGLU activation from "GLU Variants Improve Transformer"
+    Used in LLaMA and PaLM - better than GELU
+    """
+    def __init__(self, hidden_size: int, expansion: int = 4):
+        super().__init__()
+        self.w1 = nn.Linear(hidden_size, hidden_size * expansion, bias=False)
+        self.w2 = nn.Linear(hidden_size * expansion, hidden_size, bias=False)
+        self.w3 = nn.Linear(hidden_size, hidden_size * expansion, bias=False)
+    
+    def forward(self, x):
+        return self.w2(F.silu(self.w1(x)) * self.w3(x))
+
+
+class MultiHeadAttentionWithRoPE(nn.Module):
+    """
+    Multi-head attention with RoPE
+    """
+    def __init__(self, hidden_size: int, num_heads: int, dropout: float = 0.1):
+        super().__init__()
+        assert hidden_size % num_heads == 0
+        
+        self.hidden_size = hidden_size
+        self.num_heads = num_heads
+        self.head_dim = hidden_size // num_heads
+        
+        self.q_proj = nn.Linear(hidden_size, hidden_size, bias=False)
+        self.k_proj = nn.Linear(hidden_size, hidden_size, bias=False)
+        self.v_proj = nn.Linear(hidden_size, hidden_size, bias=False)
+        self.o_proj = nn.Linear(hidden_size, hidden_size, bias=False)
+        
+        self.dropout = nn.Dropout(dropout)
+    
+    def forward(self, x, cos, sin, mask=None):
+        B, T, C = x.shape
+        
+        # Project and reshape
+        q = self.q_proj(x).view(B, T, self.num_heads, self.head_dim).transpose(1, 2)
+        k = self.k_proj(x).view(B, T, self.num_heads, self.head_dim).transpose(1, 2)
+        v = self.v_proj(x).view(B, T, self.num_heads, self.head_dim).transpose(1, 2)
+        
+        # Apply RoPE
+        q, k = apply_rotary_pos_emb(q, k, cos, sin)
+        
+        # Attention
+        scale = 1.0 / math.sqrt(self.head_dim)
+        attn_weights = torch.matmul(q, k.transpose(-2, -1)) * scale
+        
+        if mask is not None:
+            attn_weights = attn_weights.masked_fill(mask, float('-inf'))
+        
+        attn_weights = F.softmax(attn_weights, dim=-1)
+        attn_weights = self.dropout(attn_weights)
+        
+        out = torch.matmul(attn_weights, v)
+        out = out.transpose(1, 2).contiguous().view(B, T, C)
+        out = self.o_proj(out)
+        
+        return out
+
+
+class TransformerBlock(nn.Module):
+    """
+    Modern Transformer block with:
+    - Pre-layer normalization (more stable)
+    - RoPE attention
+    - SwiGLU FFN
+    """
+    def __init__(self, hidden_size: int, num_heads: int, expansion: int, dropout: float):
+        super().__init__()
+        
+        # Pre-norm for stability
+        self.ln1 = RMSNorm(hidden_size)
+        self.attn = MultiHeadAttentionWithRoPE(hidden_size, num_heads, dropout)
+        
+        self.ln2 = RMSNorm(hidden_size)
+        self.ffn = SwiGLU(hidden_size, expansion)
+        
+        self.dropout = nn.Dropout(dropout)
+    
+    def forward(self, x, cos, sin, mask):
+        # Pre-norm + attention + residual
+        x = x + self.dropout(self.attn(self.ln1(x), cos, sin, mask))
+        
+        # Pre-norm + FFN + residual
+        x = x + self.dropout(self.ffn(self.ln2(x)))
+        
+        return x
+
+
+class ModernTransformer(nn.Module):
+    """
+    Modern Transformer Language Model
+    Incorporates best practices from GPT-3/4, LLaMA, PaLM
+    """
     def __init__(
-        self, 
-        vocab_size: int, 
-        hidden_size: int = 128,
-        num_layers: int = 4, 
-        num_heads: int = 4, 
+        self,
+        vocab_size: int,
+        hidden_size: int = 256,
+        num_layers: int = 6,
+        num_heads: int = 8,
         ff_expansion: int = 4,
         dropout: float = 0.1,
         max_seq_len: int = 512
@@ -25,10 +183,13 @@ class SimpleTransformer(nn.Module):
         self.hidden_size = hidden_size
         self.max_seq_len = max_seq_len
         
-        # Embeddings
+        # Token embeddings
         self.token_emb = nn.Embedding(vocab_size, hidden_size)
-        self.pos_emb = nn.Embedding(max_seq_len, hidden_size)
-        self.drop = nn.Dropout(dropout)
+        
+        # RoPE instead of learned positional embeddings
+        self.rope = RotaryPositionalEmbedding(hidden_size // num_heads, max_seq_len)
+        
+        self.dropout = nn.Dropout(dropout)
         
         # Transformer blocks
         self.blocks = nn.ModuleList([
@@ -36,17 +197,22 @@ class SimpleTransformer(nn.Module):
             for _ in range(num_layers)
         ])
         
-        # Output
-        self.ln_f = nn.LayerNorm(hidden_size)
-        self.head = nn.Linear(hidden_size, vocab_size, bias=False)
+        # Final norm
+        self.ln_f = RMSNorm(hidden_size)
         
-        # Weight tying
-        self.head.weight = self.token_emb.weight
+        # Output head (weight tied with embeddings)
+        self.lm_head = nn.Linear(hidden_size, vocab_size, bias=False)
+        self.lm_head.weight = self.token_emb.weight  # Weight tying
         
-        # Init weights
+        # Initialize weights properly
         self.apply(self._init_weights)
+        
+        # Scale embeddings (like GPT-2)
+        with torch.no_grad():
+            self.token_emb.weight.data.normal_(mean=0.0, std=0.02)
     
     def _init_weights(self, module):
+        """Proper weight initialization"""
         if isinstance(module, nn.Linear):
             torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
             if module.bias is not None:
@@ -54,96 +220,114 @@ class SimpleTransformer(nn.Module):
         elif isinstance(module, nn.Embedding):
             torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
     
-    def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
-        B, T = x.shape
+    def forward(self, input_ids: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+        B, T = input_ids.shape
         
         # Embeddings
-        tok_emb = self.token_emb(x)
-        pos = torch.arange(0, T, dtype=torch.long, device=x.device).unsqueeze(0)
-        pos_emb = self.pos_emb(pos)
-        x = self.drop(tok_emb + pos_emb)
+        x = self.token_emb(input_ids)
+        x = self.dropout(x)
+        
+        # Get RoPE embeddings
+        cos, sin = self.rope(x, T)
+        
+        # Create causal mask
+        mask = torch.triu(torch.ones(T, T, device=input_ids.device, dtype=torch.bool), diagonal=1)
+        mask = mask.unsqueeze(0).unsqueeze(0)  # [1, 1, T, T]
         
         # Transformer blocks
         for block in self.blocks:
-            x = block(x)
+            x = block(x, cos, sin, mask)
         
-        # Output
+        # Final norm and output
         x = self.ln_f(x)
-        logits = self.head(x)
+        logits = self.lm_head(x)
         
-        # Return dummy aux_loss for compatibility
-        aux_loss = torch.tensor(0.0, device=x.device)
-        
-        return logits, aux_loss
+        return logits, torch.tensor(0.0, device=x.device)  # Dummy aux loss
     
     @property
     def num_parameters(self) -> int:
         return sum(p.numel() for p in self.parameters() if p.requires_grad)
-
-
-class TransformerBlock(nn.Module):
-    """Single transformer block"""
     
-    def __init__(self, hidden_size: int, num_heads: int, ff_expansion: int, dropout: float):
-        super().__init__()
-        self.ln1 = nn.LayerNorm(hidden_size)
-        self.attn = nn.MultiheadAttention(
-            hidden_size, 
-            num_heads, 
-            dropout=dropout,
-            batch_first=True
-        )
-        self.ln2 = nn.LayerNorm(hidden_size)
-        self.ffn = FFN(hidden_size, ff_expansion, dropout)
-        self.drop = nn.Dropout(dropout)
-    
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        # Create causal mask
-        B, T, D = x.shape
-        # Upper triangular matrix (True = mask out, False = keep)
-        causal_mask = torch.triu(torch.ones(T, T, dtype=torch.bool), diagonal=1).to(x.device)
+    @torch.no_grad()
+    def generate(
+        self,
+        input_ids: torch.Tensor,
+        max_new_tokens: int = 100,
+        temperature: float = 0.8,
+        top_k: int = 50,
+        top_p: float = 0.9,
+        repetition_penalty: float = 1.2
+    ) -> torch.Tensor:
+        """
+        Generate tokens autoregressively with proper sampling
+        """
+        self.eval()
+        generated = []
         
-        # Attention with residual
-        attn_out, _ = self.attn(
-            self.ln1(x), 
-            self.ln1(x), 
-            self.ln1(x),
-            attn_mask=causal_mask,
-            need_weights=False
-        )
-        x = x + self.drop(attn_out)
+        for _ in range(max_new_tokens):
+            # Truncate if needed
+            idx_cond = input_ids if input_ids.size(1) <= self.max_seq_len else input_ids[:, -self.max_seq_len:]
+            
+            # Forward pass
+            logits, _ = self(idx_cond)
+            logits = logits[:, -1, :]  # Get last token logits
+            
+            # Apply repetition penalty
+            if generated:
+                for token_id in set(generated):
+                    if logits[0, token_id] > 0:
+                        logits[0, token_id] /= repetition_penalty
+                    else:
+                        logits[0, token_id] *= repetition_penalty
+            
+            # Temperature
+            logits = logits / temperature
+            
+            # Top-k
+            if top_k > 0:
+                v, _ = torch.topk(logits, min(top_k, logits.size(-1)))
+                logits[logits < v[:, [-1]]] = float('-inf')
+            
+            # Top-p (nucleus)
+            if top_p < 1.0:
+                sorted_logits, sorted_indices = torch.sort(logits, descending=True, dim=-1)
+                cumulative_probs = torch.cumsum(F.softmax(sorted_logits, dim=-1), dim=-1)
+                sorted_indices_to_remove = cumulative_probs > top_p
+                sorted_indices_to_remove[:, 1:] = sorted_indices_to_remove[:, :-1].clone()
+                sorted_indices_to_remove[:, 0] = 0
+                indices_to_remove = sorted_indices[sorted_indices_to_remove]
+                logits[:, indices_to_remove] = float('-inf')
+            
+            # Sample
+            probs = F.softmax(logits, dim=-1)
+            next_token = torch.multinomial(probs, num_samples=1)
+            
+            # Append
+            input_ids = torch.cat([input_ids, next_token], dim=1)
+            generated.append(next_token.item())
         
-        # FFN with residual
-        x = x + self.drop(self.ffn(self.ln2(x)))
-        
-        return x
-
-
-class FFN(nn.Module):
-    """Simple feed-forward network"""
-    
-    def __init__(self, hidden_size: int, expansion: int, dropout: float):
-        super().__init__()
-        self.fc1 = nn.Linear(hidden_size, hidden_size * expansion)
-        self.fc2 = nn.Linear(hidden_size * expansion, hidden_size)
-        self.drop = nn.Dropout(dropout)
-    
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        x = F.gelu(self.fc1(x))
-        x = self.drop(x)
-        x = self.fc2(x)
-        return x
+        return input_ids
 
 
 # Alias for compatibility
-CustomTransformer = SimpleTransformer
+CustomTransformer = ModernTransformer
 
 
 if __name__ == "__main__":
     # Test
-    model = SimpleTransformer(vocab_size=2000, hidden_size=128, num_layers=4, num_heads=4)
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    model = ModernTransformer(
+        vocab_size=2000,
+        hidden_size=256,
+        num_layers=6,
+        num_heads=8
+    ).to(device)
+    
     print(f"Parameters: {model.num_parameters:,}")
-    x = torch.randint(0, 2000, (2, 64))
-    logits, aux_loss = model(x)
+    print(f"Device: {device}")
+    
+    x = torch.randint(0, 2000, (2, 64), device=device)
+    logits, _ = model(x)
+    
     print(f"Input: {x.shape}, Output: {logits.shape}")
-    print("✅ Model working!")
+    print("✅ Modern Transformer working!")
