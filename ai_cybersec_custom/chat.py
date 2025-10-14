@@ -38,8 +38,8 @@ def load_model(device='cpu'):
     
     # Load checkpoint
     checkpoint_paths = [
-        'ai_cybersec_custom/train/utils/checkpoint.pt',
-        os.path.join(script_dir, 'train/utils/checkpoint.pt'),
+        'ai_cybersec_custom/train/HERE/checkpoint.pt',
+        os.path.join(script_dir, 'train/HERE/checkpoint.pt'),
     ]
     
     checkpoint_path = None

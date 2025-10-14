@@ -98,13 +98,18 @@ class TransformerBlock(nn.Module):
         self.drop = nn.Dropout(dropout)
     
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        # Create causal mask
+        B, T, D = x.shape
+        # Upper triangular matrix (True = mask out, False = keep)
+        causal_mask = torch.triu(torch.ones(T, T, dtype=torch.bool), diagonal=1).to(x.device)
+        
         # Attention with residual
         attn_out, _ = self.attn(
             self.ln1(x), 
             self.ln1(x), 
             self.ln1(x),
-            need_weights=False,
-            is_causal=True
+            attn_mask=causal_mask,
+            need_weights=False
         )
         x = x + self.drop(attn_out)
         
@@ -138,7 +143,6 @@ if __name__ == "__main__":
     # Test
     model = SimpleTransformer(vocab_size=2000, hidden_size=128, num_layers=4, num_heads=4)
     print(f"Parameters: {model.num_parameters:,}")
-    
     x = torch.randint(0, 2000, (2, 64))
     logits, aux_loss = model(x)
     print(f"Input: {x.shape}, Output: {logits.shape}")
