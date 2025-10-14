@@ -21,7 +21,7 @@ SPECIAL_TOKENS = {
 TRAIN_CONFIG = {
     'batch_size': 4,
     'lr': 3e-4,
-    'epochs': 2,  # Reduced for testing
+    'epochs': 50,  # Reduced for testing
     'clip': 1.0,
     'checkpoint_path': 'ai_cybersec_custom/train/HERE/checkpoint.pt',
     'warmup_steps': 50,
