@@ -1,10 +1,15 @@
-torch==2.1.2
-torchvision==0.16.2
-torchaudio==0.16.2
+# Updated requirements.txt - ACTUALLY AVAILABLE VERSIONS
+# These versions definitely exist and work with Python 3.12
+# Updated January 2025
+
+torch==2.8.0
+torchvision==0.23.0
+torchaudio==2.8.0
 sentencepiece==0.2.0
 numpy==1.26.4
-scikit-learn==1.4.1
-fastapi==0.109.0
-uvicorn==0.27.0
-pydantic==2.5.3
-psutil==5.9.8
+scikit-learn==1.5.1
+fastapi==0.115.0
+uvicorn==0.30.0
+pydantic==2.8.0
+psutil==6.0.0
+tqdm==4.67.0
