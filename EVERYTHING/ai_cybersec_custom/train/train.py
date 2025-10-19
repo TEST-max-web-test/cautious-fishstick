@@ -130,11 +130,11 @@ def train():
     print("\n🤖 Building model...")
     model = ModernTransformer(
         vocab_size=2000,
-        hidden_size=256,
-        num_layers=6,
-        num_heads=8,
+        hidden_size=96,
+        num_layers=3,
+        num_heads=3,
         ff_expansion=4,
-        dropout=0.1,
+        dropout=0.3,
         max_seq_len=512
     ).to(device)
     

@@ -4,11 +4,11 @@
 MODEL_CONFIG = {
     # Model architecture
     'vocab_size': 2000,
-    'hidden_size': 256,
-    'num_layers': 6,
-    'num_heads': 8,
+    'hidden_size': 96,
+    'num_layers': 3,
+    'num_heads': 3,
     'ff_expansion': 4,
-    'dropout': 0.1,
+    'dropout': 0.3,
     'seq_len': 512,
 }
 
@@ -35,7 +35,7 @@ TRAIN_CONFIG = {
 INFER_CONFIG = {
     # Generation hyperparameters
     'max_response_length': 200,
-    'temperature': 0.8,
+    'temperature': 0.3,
     'top_p': 0.9,
     'top_k': 50,
     'repetition_penalty': 1.1,
