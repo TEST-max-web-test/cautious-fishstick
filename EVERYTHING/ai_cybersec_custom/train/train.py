@@ -34,25 +34,29 @@ class TextDataset(Dataset):
         with open(file_path, 'r', encoding='utf-8') as f:
             content = f.read()
         
-        # Split into conversations
-        conversations = content.strip().split('\n\n')
-        print(f"   Found {len(conversations)} conversation pairs")
+        # Split into blocks (conversations or documents)
+        blocks = content.strip().split('\n\n')
+        print(f"   Found {len(blocks)} text blocks")
         
-        for conv in conversations:
-            if not conv.strip():
+        for block in blocks:
+            block = block.strip()
+            if not block:
                 continue
             
-            lines = conv.strip().split('\n')
-            if len(lines) >= 2:
-                full_text = '\n'.join(lines)
-                ids = tokenizer.encode(full_text, add_bos=True, add_eos=True)
-                
-                if len(ids) > seq_len:
-                    ids = ids[:seq_len]
-                else:
-                    ids = ids + [tokenizer.PAD] * (seq_len - len(ids))
-                
-                self.samples.append(torch.tensor(ids, dtype=torch.long))
+            # Skip very short blocks (likely empty or just headers)
+            if len(block) < 50:
+                continue
+            
+            # Tokenize the entire block
+            ids = tokenizer.encode(block, add_bos=True, add_eos=True)
+            
+            # Truncate or pad to seq_len
+            if len(ids) > seq_len:
+                ids = ids[:seq_len]
+            else:
+                ids = ids + [tokenizer.PAD] * (seq_len - len(ids))
+            
+            self.samples.append(torch.tensor(ids, dtype=torch.long))
         
         print(f"✅ Loaded {len(self.samples)} training samples\n")
 
@@ -80,7 +84,7 @@ def train():
     # Paths
     script_dir = os.path.dirname(os.path.abspath(__file__))
     tokenizer_path = os.path.join(script_dir, '../tokenizer/bpe.model')
-    corpus_path = os.path.join(script_dir, '../data/corpus.txt')
+    corpus_path = os.path.join(script_dir, '../data/combined_corpus.txt')
     checkpoint_dir = os.path.join(script_dir, 'HERE')
     checkpoint_path = os.path.join(checkpoint_dir, 'checkpoint.pt')
     
