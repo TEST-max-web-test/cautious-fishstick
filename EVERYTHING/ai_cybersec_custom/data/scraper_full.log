@@ -1,0 +1,71 @@
+================================================================================
+🚀 ENHANCED SECURITY DATA SCRAPER - MASSIVE EDITION
+================================================================================
+
+Output directory: /workspace/EVERYTHING/ai_cybersec_custom/data/scraped_data
+Started: 2025-10-21T13:29:29.663418
+
+⚠️  This will take a while - grabbing TONS of data!
+
+
+📂 Scraping GitHub security repositories...
+GitHub repos:   0%|          | 0/27 [00:00<?, ?it/s]GitHub repos:   4%|▎         | 1/27 [00:18<08:04, 18.63s/it]GitHub repos:   7%|▋         | 2/27 [00:59<13:17, 31.90s/it]GitHub repos:  11%|█         | 3/27 [01:00<07:07, 17.82s/it]GitHub repos:  15%|█▍        | 4/27 [01:03<04:27, 11.62s/it]GitHub repos:  19%|█▊        | 5/27 [01:13<04:03, 11.05s/it]GitHub repos:  22%|██▏       | 6/27 [01:25<04:01, 11.52s/it]GitHub repos:  26%|██▌       | 7/27 [01:26<02:42,  8.10s/it]GitHub repos:  30%|██▉       | 8/27 [01:34<02:31,  8.00s/it]GitHub repos:  33%|███▎      | 9/27 [01:35<01:44,  5.83s/it]GitHub repos:  37%|███▋      | 10/27 [01:36<01:14,  4.36s/it]GitHub repos:  41%|████      | 11/27 [01:37<00:53,  3.35s/it]GitHub repos:  44%|████▍     | 12/27 [01:38<00:39,  2.65s/it]GitHub repos:  48%|████▊     | 13/27 [01:40<00:33,  2.42s/it]GitHub repos:  52%|█████▏    | 14/27 [01:43<00:32,  2.50s/it]GitHub repos:  56%|█████▌    | 15/27 [01:44<00:24,  2.07s/it]GitHub repos:  59%|█████▉    | 16/27 [01:45<00:19,  1.76s/it]GitHub repos:  63%|██████▎   | 17/27 [02:45<03:13, 19.38s/it]GitHub repos:  67%|██████▋   | 18/27 [02:49<02:13, 14.78s/it]GitHub repos:  70%|███████   | 19/27 [02:54<01:35, 11.93s/it]GitHub repos:  74%|███████▍  | 20/27 [02:56<01:00,  8.67s/it]GitHub repos:  78%|███████▊  | 21/27 [02:57<00:38,  6.39s/it]GitHub repos:  81%|████████▏ | 22/27 [02:58<00:23,  4.79s/it]GitHub repos:  85%|████████▌ | 23/27 [02:59<00:14,  3.67s/it]GitHub repos:  89%|████████▉ | 24/27 [03:00<00:08,  2.89s/it]GitHub repos:  93%|█████████▎| 25/27 [03:02<00:05,  2.56s/it]GitHub repos:  96%|█████████▋| 26/27 [03:03<00:02,  2.11s/it]GitHub repos: 100%|██████████| 27/27 [03:04<00:00,  1.80s/it]GitHub repos: 100%|██████████| 27/27 [03:04<00:00,  6.82s/it]
+  ✓ Saved 100 items to github_CheatSheetSeries.jsonl (1.81 MB)
+  ✓ Saved 100 items to github_PayloadsAllTheThings.jsonl (1.34 MB)
+  ✓ Saved 1 items to github_Active-Directory-Exploitation-Cheat-Sheet.jsonl (0.05 MB)
+  ✓ Saved 22 items to github_Privilege-Escalation.jsonl (0.08 MB)
+  ✓ Saved 7 items to github_PEASS-ng.jsonl (0.03 MB)
+  ✓ Saved 13 items to github_tbhm.jsonl (0.02 MB)
+  ✓ Saved 1 items to github_awesome-web-hacking.jsonl (0.02 MB)
+  ✓ Saved 2 items to github_bugbounty-cheatsheet.jsonl (0.00 MB)
+  ✓ Saved 100 items to github_ctf.jsonl (0.34 MB)
+  ✓ Saved 1 items to github_CTF-Writeups.jsonl (0.00 MB)
+  ✓ Saved 1 items to github_cloudgoat.jsonl (0.03 MB)
+  ✓ Saved 1 items to github_awesome-api-security.jsonl (0.04 MB)
+
+🐛 Scraping bug bounty platforms...
+  📋 HackerOne disclosed reports...
+  HackerOne error page 1: Expecting value: line 1 column 1 (char 0)
+  ⏭️  Skipping hackerone_reports.jsonl (no data)
+
+🔒 Downloading CVE databases...
+  📊 NVD Recent CVEs...
+  CVE error 2022: Status 404
+  CVE error 2023: Status 404
+  CVE error 2024: Status 404
+  CVE error 2025: Status 404
+  ⏭️  Skipping nvd_cves.jsonl (no data)
+
+🛡️  Scraping GitHub Security Advisories...
+  ℹ️  GitHub advisories repo is huge, getting sample
+  ⏭️  Skipping github_advisories.jsonl (no data)
+
+📰 Scraping security blogs...
+Blog feeds:   0%|          | 0/20 [00:00<?, ?it/s]Blog feeds:   5%|▌         | 1/20 [00:31<09:51, 31.14s/it]Blog feeds:  10%|█         | 2/20 [00:49<07:01, 23.41s/it]Blog feeds:  15%|█▌        | 3/20 [01:09<06:15, 22.11s/it]Blog feeds:  20%|██        | 4/20 [01:11<03:43, 13.95s/it]Blog feeds:  25%|██▌       | 5/20 [01:12<02:20,  9.38s/it]Blog feeds:  30%|███       | 6/20 [01:19<01:58,  8.46s/it]Blog feeds:  35%|███▌      | 7/20 [01:30<02:02,  9.40s/it]Blog feeds:  40%|████      | 8/20 [01:31<01:21,  6.78s/it]Blog feeds:  45%|████▌     | 9/20 [01:33<00:56,  5.10s/it]Blog feeds:  50%|█████     | 10/20 [01:40<00:59,  5.97s/it]Blog feeds:  55%|█████▌    | 11/20 [01:47<00:56,  6.27s/it]Blog feeds:  60%|██████    | 12/20 [01:58<01:00,  7.57s/it]Blog feeds:  65%|██████▌   | 13/20 [02:01<00:42,  6.10s/it]Blog feeds:  70%|███████   | 14/20 [02:07<00:37,  6.21s/it]Blog feeds:  75%|███████▌  | 15/20 [02:18<00:37,  7.52s/it]Blog feeds:  80%|████████  | 16/20 [02:35<00:41, 10.38s/it]Blog feeds:  85%|████████▌ | 17/20 [02:46<00:31, 10.59s/it]Blog feeds:  90%|█████████ | 18/20 [02:55<00:20, 10.28s/it]Blog feeds:  95%|█████████▌| 19/20 [03:06<00:10, 10.43s/it]Blog feeds: 100%|██████████| 20/20 [03:07<00:00,  7.66s/it]Blog feeds: 100%|██████████| 20/20 [03:07<00:00,  9.39s/it]
+  ✓ Saved 170 items to security_blogs.jsonl (1.71 MB)
+
+🏴 Scraping CTF writeups...
+  ✓ Saved 51 items to ctf_writeups.jsonl (0.40 MB)
+
+💥 Scraping PacketStorm Security...
+  ⏭️  Skipping packetstorm.jsonl (no data)
+
+================================================================================
+✅ SCRAPING COMPLETE
+================================================================================
+
+Total items collected: 570
+
+Breakdown by source:
+  github: 400
+  blog: 170
+
+Total size: 16.35 MB
+
+================================================================================
+📤 NEXT STEPS:
+================================================================================
+1. Run filter_training_data.py to clean the data
+2. Review filtered_data/consolidated_training_data.jsonl
+3. Train your model on the cleaned data
+================================================================================
