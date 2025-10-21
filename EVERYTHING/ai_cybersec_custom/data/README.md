@@ -1,276 +1,193 @@
-# Cybersecurity Bot Training Data
+# Cybersecurity AI Training Dataset
 
-**Last Updated**: 2025-10-21  
-**Status**: ✅ Cleaned and Ready for Training
+## Overview
+This dataset contains high-quality cybersecurity content scraped from 24+ GitHub repositories, totaling **44.42 MB** of filtered, security-focused training data.
 
----
+## Dataset Statistics
+- **Total Items**: 619 high-quality documents
+- **Total Size**: 44.42 MB (consolidated)
+- **Sources**: GitHub security repositories
+- **Quality**: Professionally filtered, 100% security-focused
 
-## 📁 Directory Structure
+## Data Sources
+
+### GitHub Repositories (24)
+The dataset includes content from the following repositories:
+
+#### Pentesting & Methodologies
+- OWASP CheatSheetSeries (93 docs)
+- PayloadsAllTheThings (41 docs)
+- HackTricks (80 docs)
+- Bug Hunter's Methodology (11 docs)
+- HowToHunt (68 docs)
+- Privilege Escalation guides (21 docs)
+
+#### CTF & Writeups
+- CTF Wiki (76 docs)
+- CTF Writeups (91 docs)
+- Various CTF repos (1+ docs)
+
+#### Cloud Security
+- AWS Security Tools (1 doc)
+- Azure Security Center (2 docs)
+- Kubernetes (35 docs)
+
+#### Mobile & Application Security
+- OWASP MSTG (69 docs)
+- Mobile Security Framework (3 docs)
+- Web Security repos (3 docs)
+
+#### Exploit & Tools
+- Metasploit Framework (3 docs)
+- PWNdbg (5 docs)
+- PEASS-ng (1 doc)
+- Bug Bounty Cheatsheet (15 docs)
+
+## File Structure
 
 ```
 data/
-├── scraped_data/                    # Original scraped data (cleaned)
-│   ├── blogs.jsonl                  # 156 security blog articles
-│   ├── ctf_writeups.jsonl          # 38 CTF writeups
-│   ├── github_CheatSheetSeries.jsonl   # 133 OWASP cheat sheets
-│   └── github_PayloadsAllTheThings.jsonl  # 167 security payloads
+├── scraped_data/           # Raw scraped data (56 MB)
+│   ├── github_*.jsonl      # Individual repo data
 │
-├── filtered_data/                   # ⭐ HIGH-QUALITY TRAINING DATA
-│   ├── consolidated_training_data.jsonl  # 372 items - MAIN DATASET
-│   ├── text_corpus.txt             # Plain text version (4.99 MB)
-│   ├── blogs.jsonl                 # 142 filtered blog articles
-│   ├── ctf_writeups.jsonl         # 34 filtered CTF writeups
-│   ├── github_CheatSheetSeries.jsonl  # 123 filtered cheat sheets
-│   ├── github_PayloadsAllTheThings.jsonl  # 71 filtered payloads
-│   └── exploitdb.jsonl            # 2 filtered exploits
+├── filtered_data/          # Filtered high-quality data
+│   ├── consolidated_training_data.jsonl  # Main dataset (44.42 MB)
+│   └── github_*.jsonl      # Individual filtered files
 │
-├── corpus.txt                       # Existing Q&A format (891 lines)
-├── scraper.py                       # Data scraping script
-├── filter_training_data.py          # Data filtering script
-├── convert_to_text_corpus.py        # JSONL to text converter
-├── FILTERING_SUMMARY.md             # Detailed filtering report
-└── README.md                        # This file
+├── corpus.txt              # Original Q&A format corpus
+├── scraper_enhanced.py     # Enhanced scraper with 57+ repos
+└── filter_training_data.py # Intelligent filtering script
 ```
 
----
+## Data Format
 
-## 🎯 Quick Start
-
-### For Training Your Bot:
-
-**Option 1 - Structured JSONL Format (Recommended)**
-```bash
-Use: filtered_data/consolidated_training_data.jsonl
-Size: 5.12 MB
-Items: 372 high-quality security documents
-Format: One JSON object per line with metadata
-```
-
-**Option 2 - Plain Text Format**
-```bash
-Use: filtered_data/text_corpus.txt  
-Size: 4.99 MB
-Items: 372 documents in plain text
-Format: Text with section headers
-```
-
-**Option 3 - Q&A Conversational Format**
-```bash
-Use: corpus.txt
-Size: ~100 KB
-Items: 891 lines of Q&A pairs
-Format: User question / Agent answer
-```
-
----
-
-## 📊 Data Quality Metrics
-
-### Original Scraped Data:
-- **Total Items**: ~47,414
-- **Total Size**: ~25 MB
-- **Quality**: Mixed (contained empty files, metadata-only, configs)
-
-### After Filtering:
-- **Total Items**: 372 (99.2% reduction)
-- **Total Size**: 5.12 MB (79.5% reduction)
-- **Quality**: 100% security-focused, substantive content
-
-### Retention Rates:
-- Security Blogs: 91.0% kept
-- OWASP Cheat Sheets: 92.5% kept
-- CTF Writeups: 89.5% kept
-- PayloadsAllTheThings: 42.5% kept
-- ExploitDB: 0.004% kept (was 99.99% garbage)
-
----
-
-## 🔍 Content Coverage
-
-The filtered dataset covers:
-
-### Web Application Security
-- XSS, CSRF, SQL Injection
-- Authentication & Authorization
-- Session Management
-- API Security
-
-### Network Security
-- Reconnaissance & Scanning
-- Exploitation Techniques
-- Post-Exploitation
-- Lateral Movement
-
-### Secure Development
-- Secure Coding Practices
-- C/C++ Toolchain Hardening
-- Software Supply Chain Security
-- Code Review Guidelines
-
-### Penetration Testing
-- CTF Techniques
-- Real-world Scenarios
-- Tool Usage (Burp Suite, etc.)
-- Methodology
-
-### Vulnerability Research
-- CVE Analysis
-- Exploit Development
-- Reverse Engineering
-- Malware Analysis
-
----
-
-## 🛠️ Scripts & Tools
-
-### 1. Scraper (`scraper.py`)
-```bash
-python3 scraper.py
-```
-- Scrapes security content from multiple sources
-- Outputs to `scraped_data/` directory
-- Sources: GitHub repos, blogs, ExploitDB, CVE databases
-
-### 2. Filter (`filter_training_data.py`)
-```bash
-python3 filter_training_data.py
-```
-- Filters scraped data for quality
-- Removes empty files, templates, configs
-- Applies security keyword filtering
-- Outputs to `filtered_data/` directory
-
-### 3. Converter (`convert_to_text_corpus.py`)
-```bash
-python3 convert_to_text_corpus.py
-```
-- Converts JSONL to plain text
-- Adds section headers
-- Outputs to `filtered_data/text_corpus.txt`
-
----
-
-## 📋 JSONL Format Structure
-
-Each line in the JSONL files contains:
-
-```json
-{
-  "source": "blog",
-  "title": "WebSocket Security Testing",
-  "url": "https://example.com/article",
-  "content": "Full article text here...",
-  "timestamp": "2025-10-19T19:19:56.511424"
-}
-```
-
-Or for GitHub sources:
+The consolidated dataset is in JSONL format with the following structure:
 
 ```json
 {
   "source": "github",
-  "repo": "OWASP/CheatSheetSeries",
-  "file": "cheatsheets/XSS_Prevention.md",
+  "repo": "owner/repo",
+  "file": "path/to/file.md",
   "url": "https://github.com/...",
-  "content": "Full file content here...",
-  "timestamp": "2025-10-19T19:17:21.923359"
+  "content": "Full markdown content...",
+  "timestamp": "2025-10-21T..."
 }
 ```
 
----
+## Quality Filtering
 
-## ✅ What Was Removed (Garbage)
+The dataset has been filtered to remove:
+- ❌ Empty files and repositories
+- ❌ GitHub templates and configs (.yml, .yaml, etc.)
+- ❌ License, README, Contributing files
+- ❌ Content shorter than 200 characters
+- ❌ Non-security related content
 
-### Empty Files (10 files):
-- cve.jsonl (0 items)
-- hackerone.jsonl (0 items)
-- 8 empty GitHub repository files
+Only content with security keywords is retained:
+- vulnerability, exploit, attack, penetration testing
+- XSS, CSRF, SQL injection, command injection
+- privilege escalation, reverse shell, RCE
+- CTF writeups, bug bounty reports
+- and 30+ more security-specific terms
 
-### Low-Quality Content:
-- GitHub issue templates
-- Pull request templates
-- Config files (.github/, .yml, .yaml)
-- License files, README files
-- Package manager files (package.json, requirements.txt)
-- Content under 200 characters
-- Non-security related content
+## Retention Rates
 
-### ExploitDB Metadata:
-- 46,918 out of 46,920 items removed
-- Were just file paths and descriptions
-- No actual exploit code
-- Kept only 2 substantive entries
+| Repository | Kept % |
+|-----------|--------|
+| Privilege-Escalation | 95.5% |
+| CheatSheetSeries | 93.0% |
+| CTF-Writeups | 91.0% |
+| Kubernetes | 85.4% |
+| HowToHunt | 80.0% |
+| HackTricks | 80.0% |
+| Bug Bounty Cheatsheet | 78.9% |
+| CTF-Wiki | 76.0% |
 
----
+## Usage
 
-## 🚀 Training Recommendations
+### Training a Model
 
-### For Fine-Tuning:
-1. Use `filtered_data/consolidated_training_data.jsonl`
-2. Extract content field for training
-3. Consider adding metadata as context
+```python
+import json
 
-### For RAG (Retrieval Augmented Generation):
-1. Use `filtered_data/consolidated_training_data.jsonl`
-2. Create embeddings from content
-3. Use metadata (source, title, url) for filtering
+# Load the dataset
+data = []
+with open('filtered_data/consolidated_training_data.jsonl', 'r') as f:
+    for line in f:
+        data.append(json.loads(line))
 
-### For Conversational AI:
-1. Use existing `corpus.txt` (Q&A format)
-2. Or convert filtered data to Q&A format using LLM
-3. Combine both datasets for comprehensive coverage
+# Each item contains:
+# - source: where it came from
+# - content: the actual text content
+# - metadata: repo, file, url, timestamp
 
----
-
-## 📈 Next Steps
-
-1. ✅ **Data Collection**: Complete
-2. ✅ **Data Filtering**: Complete  
-3. ✅ **Data Preparation**: Complete
-4. ⏭️ **Model Training**: Ready to begin
-5. ⏭️ **Model Evaluation**: After training
-
----
-
-## 🔄 Updating the Dataset
-
-To refresh the dataset:
-
-```bash
-# 1. Scrape new data
-python3 scraper.py
-
-# 2. Filter the data
-python3 filter_training_data.py
-
-# 3. Convert to text (optional)
-python3 convert_to_text_corpus.py
+# Use the content for training
+training_texts = [item['content'] for item in data]
 ```
 
----
+### Running the Scraper
 
-## 📝 Notes
+To update the dataset with fresh content:
 
-- All empty files have been removed from `scraped_data/`
-- ExploitDB file removed due to 99.99% garbage content
-- Filtering is conservative to ensure high quality
-- Current dataset: 372 items is optimal for fine-tuning
-- Can expand by:
-  - Adding more blog RSS feeds
-  - Scraping more GitHub repositories
-  - Including academic papers
-  - Adding vulnerability databases
+```bash
+cd data
+python3 scraper_enhanced.py
+```
 
----
+The scraper now includes 57+ repositories covering:
+- CVE exploits and PoCs
+- Bug bounty write-ups
+- Modern web security
+- Container & Kubernetes security
+- Binary exploitation
+- Malware analysis
+- And much more!
 
-## 🆘 Support
+### Filtering New Data
 
-For issues or questions:
-1. Check `FILTERING_SUMMARY.md` for detailed metrics
-2. Review script output for errors
-3. Examine sample data in filtered files
-4. Adjust filtering criteria in `filter_training_data.py`
+After scraping:
 
----
+```bash
+python3 filter_training_data.py
+```
 
-**Status**: ✅ Dataset is clean, filtered, and ready for bot training!
+This will:
+1. Filter out garbage and low-quality content
+2. Keep only security-relevant documents
+3. Create individual filtered files
+4. Generate consolidated_training_data.jsonl
+
+## Content Coverage
+
+The dataset covers:
+- ✅ Web application security (XSS, CSRF, SQLi, etc.)
+- ✅ Network penetration testing
+- ✅ Privilege escalation (Linux & Windows)
+- ✅ CTF techniques and writeups
+- ✅ Bug bounty hunting methodologies
+- ✅ Cloud security (AWS, Azure, Kubernetes)
+- ✅ Mobile security testing
+- ✅ Reverse engineering basics
+- ✅ Exploit development concepts
+- ✅ Security tool usage (Burp, Metasploit, etc.)
+
+## Recent Updates
+
+### 2025-10-21
+- ✅ Added 33 new GitHub repositories
+- ✅ Enhanced scraper with CVE PoCs, bug bounty repos
+- ✅ Added modern security blogs (40+ feeds)
+- ✅ Collected 56 MB of raw data
+- ✅ Filtered to 44.42 MB high-quality content
+- ✅ 619 security-focused documents
+
+## Next Steps
+
+1. **Train your model** using the consolidated dataset
+2. **Update regularly** by running the scraper monthly
+3. **Customize filtering** by editing filter_training_data.py
+4. **Add more sources** by editing SECURITY_REPOS in scraper_enhanced.py
+
+## License
+
+This dataset aggregates content from various open-source repositories. Please respect the original licenses of each source repository.
