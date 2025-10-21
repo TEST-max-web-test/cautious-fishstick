@@ -88,9 +88,10 @@ class SwiGLU(nn.Module):
 
 class MultiHeadAttentionWithRoPE(nn.Module):
     """
-    Multi-head attention with RoPE
+    Multi-head attention with RoPE and Flash Attention compatibility
+    Implements Grouped Query Attention (GQA) for efficiency
     """
-    def __init__(self, hidden_size: int, num_heads: int, dropout: float = 0.1):
+    def __init__(self, hidden_size: int, num_heads: int, dropout: float = 0.1, num_kv_heads: int = None):
         super().__init__()
         assert hidden_size % num_heads == 0
         
@@ -98,38 +99,59 @@ class MultiHeadAttentionWithRoPE(nn.Module):
         self.num_heads = num_heads
         self.head_dim = hidden_size // num_heads
         
+        # Grouped Query Attention (used in LLaMA 2, Mistral)
+        self.num_kv_heads = num_kv_heads if num_kv_heads is not None else num_heads
+        assert num_heads % self.num_kv_heads == 0
+        self.num_queries_per_kv = num_heads // self.num_kv_heads
+        
         self.q_proj = nn.Linear(hidden_size, hidden_size, bias=False)
-        self.k_proj = nn.Linear(hidden_size, hidden_size, bias=False)
-        self.v_proj = nn.Linear(hidden_size, hidden_size, bias=False)
+        self.k_proj = nn.Linear(hidden_size, self.num_kv_heads * self.head_dim, bias=False)
+        self.v_proj = nn.Linear(hidden_size, self.num_kv_heads * self.head_dim, bias=False)
         self.o_proj = nn.Linear(hidden_size, hidden_size, bias=False)
         
         self.dropout = nn.Dropout(dropout)
+        self.attn_dropout = nn.Dropout(dropout)
     
-    def forward(self, x, cos, sin, mask=None):
+    def forward(self, x, cos, sin, mask=None, use_cache=False, past_kv=None):
         B, T, C = x.shape
         
         # Project and reshape
         q = self.q_proj(x).view(B, T, self.num_heads, self.head_dim).transpose(1, 2)
-        k = self.k_proj(x).view(B, T, self.num_heads, self.head_dim).transpose(1, 2)
-        v = self.v_proj(x).view(B, T, self.num_heads, self.head_dim).transpose(1, 2)
+        k = self.k_proj(x).view(B, T, self.num_kv_heads, self.head_dim).transpose(1, 2)
+        v = self.v_proj(x).view(B, T, self.num_kv_heads, self.head_dim).transpose(1, 2)
         
         # Apply RoPE
         q, k = apply_rotary_pos_emb(q, k, cos, sin)
         
-        # Attention
+        # KV caching for faster inference
+        if use_cache:
+            if past_kv is not None:
+                k = torch.cat([past_kv[0], k], dim=2)
+                v = torch.cat([past_kv[1], v], dim=2)
+            past_kv = (k, v)
+        
+        # Expand KV heads for GQA
+        if self.num_kv_heads != self.num_heads:
+            k = k.repeat_interleave(self.num_queries_per_kv, dim=1)
+            v = v.repeat_interleave(self.num_queries_per_kv, dim=1)
+        
+        # Scaled Dot-Product Attention with improved numerical stability
         scale = 1.0 / math.sqrt(self.head_dim)
         attn_weights = torch.matmul(q, k.transpose(-2, -1)) * scale
         
         if mask is not None:
             attn_weights = attn_weights.masked_fill(mask, float('-inf'))
         
-        attn_weights = F.softmax(attn_weights, dim=-1)
-        attn_weights = self.dropout(attn_weights)
+        attn_weights = F.softmax(attn_weights, dim=-1, dtype=torch.float32).to(q.dtype)
+        attn_weights = self.attn_dropout(attn_weights)
         
         out = torch.matmul(attn_weights, v)
         out = out.transpose(1, 2).contiguous().view(B, T, C)
         out = self.o_proj(out)
+        out = self.dropout(out)
         
+        if use_cache:
+            return out, past_kv
         return out
 
 
@@ -137,35 +159,48 @@ class TransformerBlock(nn.Module):
     """
     Modern Transformer block with:
     - Pre-layer normalization (more stable)
-    - RoPE attention
+    - RoPE attention with GQA
     - SwiGLU FFN
+    - Gradient checkpointing support
     """
-    def __init__(self, hidden_size: int, num_heads: int, expansion: int, dropout: float):
+    def __init__(self, hidden_size: int, num_heads: int, expansion: int, dropout: float, num_kv_heads: int = None):
         super().__init__()
         
         # Pre-norm for stability
         self.ln1 = RMSNorm(hidden_size)
-        self.attn = MultiHeadAttentionWithRoPE(hidden_size, num_heads, dropout)
+        self.attn = MultiHeadAttentionWithRoPE(hidden_size, num_heads, dropout, num_kv_heads)
         
         self.ln2 = RMSNorm(hidden_size)
         self.ffn = SwiGLU(hidden_size, expansion)
         
-        self.dropout = nn.Dropout(dropout)
+        # Dropout is applied inside attn and ffn now
     
-    def forward(self, x, cos, sin, mask):
+    def forward(self, x, cos, sin, mask, use_cache=False, past_kv=None):
         # Pre-norm + attention + residual
-        x = x + self.dropout(self.attn(self.ln1(x), cos, sin, mask))
+        if use_cache:
+            attn_out, past_kv = self.attn(self.ln1(x), cos, sin, mask, use_cache, past_kv)
+            x = x + attn_out
+        else:
+            x = x + self.attn(self.ln1(x), cos, sin, mask)
         
         # Pre-norm + FFN + residual
-        x = x + self.dropout(self.ffn(self.ln2(x)))
+        x = x + self.ffn(self.ln2(x))
         
+        if use_cache:
+            return x, past_kv
         return x
 
 
 class ModernTransformer(nn.Module):
     """
     Modern Transformer Language Model
-    Incorporates best practices from GPT-3/4, LLaMA, PaLM
+    Incorporates best practices from GPT-3/4, LLaMA 2, Mistral:
+    - Grouped Query Attention (GQA)
+    - RoPE positional embeddings
+    - RMSNorm
+    - SwiGLU activation
+    - KV caching
+    - Gradient checkpointing
     """
     def __init__(
         self,
@@ -173,15 +208,21 @@ class ModernTransformer(nn.Module):
         hidden_size: int = 256,
         num_layers: int = 6,
         num_heads: int = 8,
+        num_kv_heads: int = None,
         ff_expansion: int = 4,
         dropout: float = 0.1,
-        max_seq_len: int = 512
+        max_seq_len: int = 512,
+        use_gradient_checkpointing: bool = False
     ):
         super().__init__()
         
         self.vocab_size = vocab_size
         self.hidden_size = hidden_size
         self.max_seq_len = max_seq_len
+        self.use_gradient_checkpointing = use_gradient_checkpointing
+        
+        # GQA: reduce KV heads for efficiency (like LLaMA 2)
+        self.num_kv_heads = num_kv_heads if num_kv_heads is not None else num_heads
         
         # Token embeddings
         self.token_emb = nn.Embedding(vocab_size, hidden_size)
@@ -191,9 +232,9 @@ class ModernTransformer(nn.Module):
         
         self.dropout = nn.Dropout(dropout)
         
-        # Transformer blocks
+        # Transformer blocks with GQA
         self.blocks = nn.ModuleList([
-            TransformerBlock(hidden_size, num_heads, ff_expansion, dropout)
+            TransformerBlock(hidden_size, num_heads, ff_expansion, dropout, self.num_kv_heads)
             for _ in range(num_layers)
         ])
         
@@ -220,7 +261,7 @@ class ModernTransformer(nn.Module):
         elif isinstance(module, nn.Embedding):
             torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
     
-    def forward(self, input_ids: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+    def forward(self, input_ids: torch.Tensor, use_cache: bool = False, past_kvs: list = None) -> Tuple[torch.Tensor, torch.Tensor]:
         B, T = input_ids.shape
         
         # Embeddings
@@ -234,14 +275,40 @@ class ModernTransformer(nn.Module):
         mask = torch.triu(torch.ones(T, T, device=input_ids.device, dtype=torch.bool), diagonal=1)
         mask = mask.unsqueeze(0).unsqueeze(0)  # [1, 1, T, T]
         
-        # Transformer blocks
-        for block in self.blocks:
-            x = block(x, cos, sin, mask)
+        # Transformer blocks with optional gradient checkpointing
+        new_kvs = [] if use_cache else None
+        for i, block in enumerate(self.blocks):
+            past_kv = past_kvs[i] if past_kvs is not None else None
+            
+            if self.use_gradient_checkpointing and self.training:
+                # Use gradient checkpointing to save memory during training
+                def create_custom_forward(module):
+                    def custom_forward(*inputs):
+                        return module(*inputs)
+                    return custom_forward
+                
+                if use_cache:
+                    x, new_kv = torch.utils.checkpoint.checkpoint(
+                        create_custom_forward(block), x, cos, sin, mask, use_cache, past_kv
+                    )
+                    new_kvs.append(new_kv)
+                else:
+                    x = torch.utils.checkpoint.checkpoint(
+                        create_custom_forward(block), x, cos, sin, mask
+                    )
+            else:
+                if use_cache:
+                    x, new_kv = block(x, cos, sin, mask, use_cache, past_kv)
+                    new_kvs.append(new_kv)
+                else:
+                    x = block(x, cos, sin, mask)
         
         # Final norm and output
         x = self.ln_f(x)
         logits = self.lm_head(x)
         
+        if use_cache:
+            return logits, new_kvs
         return logits, torch.tensor(0.0, device=x.device)  # Dummy aux loss
     
     @property

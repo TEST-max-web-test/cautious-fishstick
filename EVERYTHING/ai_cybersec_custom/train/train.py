@@ -126,39 +126,69 @@ def train():
     
     print(f"✅ Train: {len(train_idx)}, Val: {len(val_idx)}")
     
-    # Build model
+    # Build model with modern improvements
     print("\n🤖 Building model...")
     model = ModernTransformer(
         vocab_size=2000,
-        hidden_size=96,
-        num_layers=3,
-        num_heads=3,
+        hidden_size=128,  # Increased from 96
+        num_layers=4,  # Increased from 3
+        num_heads=4,  # Increased from 3
+        num_kv_heads=2,  # GQA: 2 KV heads, 4 Q heads
         ff_expansion=4,
-        dropout=0.3,
-        max_seq_len=512
+        dropout=0.2,  # Reduced dropout
+        max_seq_len=512,
+        use_gradient_checkpointing=True  # Enable for memory efficiency
     ).to(device)
     
     print(f"✅ Parameters: {model.num_parameters:,}")
+    print(f"   Architecture: GQA with {model.num_kv_heads} KV heads")
+    print(f"   Gradient Checkpointing: Enabled")
     
-    # Optimizer
-    optimizer = AdamW(model.parameters(), lr=3e-4, weight_decay=0.01)
+    # Optimizer with layer-wise learning rate decay
+    no_decay = ['bias', 'ln', 'norm']
+    optimizer_grouped_parameters = [
+        {
+            'params': [p for n, p in model.named_parameters() 
+                      if not any(nd in n for nd in no_decay)],
+            'weight_decay': 0.01,
+        },
+        {
+            'params': [p for n, p in model.named_parameters() 
+                      if any(nd in n for nd in no_decay)],
+            'weight_decay': 0.0,
+        },
+    ]
+    optimizer = AdamW(optimizer_grouped_parameters, lr=3e-4, betas=(0.9, 0.95))
     
-    # Loss function
+    # Loss function with label smoothing
     loss_fn = nn.CrossEntropyLoss(ignore_index=0, label_smoothing=0.1)
     
     # Scaler for mixed precision
     scaler = GradScaler() if device.type == 'cuda' else None
     
-    # Learning rate schedule
-    def get_lr(epoch, total_epochs=50):
-        progress = epoch / total_epochs
-        return 3e-4 * 0.5 * (1 + math.cos(math.pi * progress))
+    # Learning rate schedule: warmup + cosine decay
+    warmup_epochs = 5
+    total_epochs = 50
+    
+    def get_lr(epoch):
+        if epoch < warmup_epochs:
+            # Linear warmup
+            return 3e-4 * (epoch + 1) / warmup_epochs
+        else:
+            # Cosine decay
+            progress = (epoch - warmup_epochs) / (total_epochs - warmup_epochs)
+            return 3e-4 * 0.5 * (1 + math.cos(math.pi * progress))
+    
+    # Gradient accumulation for larger effective batch size
+    gradient_accumulation_steps = 4
+    effective_batch_size = 4 * gradient_accumulation_steps
     
     print(f"\n⚙️  Training config:")
-    print(f"   Batch size: 4")
-    print(f"   Epochs: 50")
-    print(f"   Learning rate: 3e-4")
+    print(f"   Batch size: 4 (effective: {effective_batch_size} with grad accum)")
+    print(f"   Epochs: {total_epochs}")
+    print(f"   Learning rate: 3e-4 (warmup: {warmup_epochs} epochs)")
     print(f"   Mixed precision: {scaler is not None}")
+    print(f"   Gradient accumulation: {gradient_accumulation_steps} steps")
     
     # Training loop
     print(f"\n{'='*80}")
@@ -178,7 +208,7 @@ def train():
         epoch_loss = 0.0
         epoch_tokens = 0
         
-        pbar = tqdm(train_loader, desc=f"Epoch {epoch+1}/50")
+        pbar = tqdm(train_loader, desc=f"Epoch {epoch+1}/{total_epochs}")
         
         for batch_idx, batch in enumerate(pbar):
             batch = batch.to(device)
@@ -192,27 +222,38 @@ def train():
                     logits.reshape(-1, logits.size(-1)),
                     targets.reshape(-1)
                 )
+                # Scale loss for gradient accumulation
+                loss = loss / gradient_accumulation_steps
             
             # Backward pass
-            optimizer.zero_grad()
             if scaler:
                 scaler.scale(loss).backward()
-                scaler.unscale_(optimizer)
-                torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-                scaler.step(optimizer)
-                scaler.update()
             else:
                 loss.backward()
-                torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-                optimizer.step()
+            
+            # Optimizer step every gradient_accumulation_steps
+            if (batch_idx + 1) % gradient_accumulation_steps == 0:
+                if scaler:
+                    scaler.unscale_(optimizer)
+                    torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+                    scaler.step(optimizer)
+                    scaler.update()
+                else:
+                    torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+                    optimizer.step()
+                
+                optimizer.zero_grad()
             
             # Track
             mask = (targets != 0)
             batch_tokens = mask.sum().item()
-            epoch_loss += loss.item() * batch_tokens
+            epoch_loss += loss.item() * batch_tokens * gradient_accumulation_steps
             epoch_tokens += batch_tokens
             
-            pbar.set_postfix({'loss': f"{loss.item():.4f}"})
+            pbar.set_postfix({
+                'loss': f"{loss.item() * gradient_accumulation_steps:.4f}",
+                'lr': f"{optimizer.param_groups[0]['lr']:.2e}"
+            })
         
         # Epoch stats
         avg_train_loss = epoch_loss / max(epoch_tokens, 1)

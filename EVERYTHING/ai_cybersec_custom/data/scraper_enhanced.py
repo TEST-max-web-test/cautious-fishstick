@@ -24,7 +24,7 @@ OUTPUT_DIR.mkdir(exist_ok=True, parents=True)
 GITHUB_TOKEN = None  # Set this if you have one for higher rate limits
 
 # =============================================================================
-# GITHUB PENTESTING & SECURITY REPOS (EXPANDED)
+# GITHUB PENTESTING & SECURITY REPOS (MASSIVELY EXPANDED)
 # =============================================================================
 SECURITY_REPOS = [
     # Original repos
@@ -71,6 +71,56 @@ SECURITY_REPOS = [
     # Network security
     "Kayzaks/HackingNeuralNetworks",
     "sbilly/awesome-security",
+    
+    # NEW - CVE Exploits and PoCs (2023-2025)
+    "nomi-sec/PoC-in-GitHub",  # Massive collection of CVE PoCs
+    "trickest/cve",  # Up-to-date CVE PoCs
+    "projectdiscovery/nuclei-templates",  # Vulnerability templates
+    "fkie-cad/nvd-json-data-feeds",  # NVD JSON feeds
+    
+    # NEW - Bug Bounty & Security Research
+    "ngalongc/bug-bounty-reference",  # Bug bounty write-ups
+    "djadmin/awesome-bug-bounty",  # Bug bounty resources
+    "Penetration-Testing-Study-Notes/Bug-Bounty-Notes",  # Bug bounty notes
+    "sehno/Bug-bounty",  # Bug bounty write-ups and tools
+    
+    # NEW - Modern Web Security
+    "OWASP/wstg",  # Web Security Testing Guide
+    "OWASP/ASVS",  # Application Security Verification Standard
+    "cujanovic/SSRF-Testing",  # SSRF exploitation techniques
+    "ticarpi/jwt_tool",  # JWT security testing
+    
+    # NEW - Mobile Security
+    "OWASP/owasp-mstg",  # Mobile Security Testing Guide
+    "MobSF/Mobile-Security-Framework-MobSF",  # Mobile security framework
+    
+    # NEW - Reverse Engineering
+    "mytechnotalent/Reverse-Engineering",  # Reverse engineering tutorials
+    "wtsxDev/reverse-engineering",  # Reverse engineering resources
+    
+    # NEW - Container & Kubernetes Security
+    "kubernetes/kubernetes",  # Official K8s (docs only)
+    "cdk-team/CDK",  # Container penetration toolkit
+    "aquasecurity/trivy",  # Container security scanner
+    
+    # NEW - Binary Exploitation
+    "shellphish/how2heap",  # Heap exploitation techniques
+    "nneonneo/sha1collider",  # Cryptographic attacks
+    "Coalfire-Research/Sliver-Notes",  # C2 framework notes
+    
+    # NEW - Recent Security Tools
+    "calebstewart/pwncat",  # Post-exploitation platform
+    "AonCyberLabs/PurpleSharp",  # Purple team tooling
+    "RustScan/RustScan",  # Modern port scanner
+    
+    # NEW - Windows Security
+    "GhostPack/Rubeus",  # Kerberos abuse
+    "PowerShellMafia/PowerSploit",  # PowerShell exploitation
+    "BC-SECURITY/Empire",  # Post-exploitation framework
+    
+    # NEW - Malware Analysis
+    "rshipp/awesome-malware-analysis",  # Malware analysis resources
+    "meirwah/awesome-incident-response",  # Incident response
 ]
 
 def scrape_github_repo(owner, repo, max_files=200):
@@ -203,9 +253,136 @@ def scrape_bugcrowd_disclosures():
     print("  ℹ️  Bugcrowd API not publicly available, skipping")
     return results
 
+def scrape_pentesterlab_writeups():
+    """Scrape high-quality pentesting write-ups from multiple sources"""
+    results = []
+    
+    # High-quality write-up sources
+    writeup_urls = [
+        # Medium security publications
+        "https://infosecwriteups.com/",
+        "https://pentesttools.net/",
+        
+        # Bug bounty platforms  
+        "https://hackerone.com/hacktivity",
+        
+        # CTF platforms
+        "https://ctftime.org/writeups",
+    ]
+    
+    for url in writeup_urls:
+        try:
+            resp = requests.get(url, timeout=10)
+            soup = BeautifulSoup(resp.text, 'html.parser')
+            
+            # Extract article links (this is simplified, each site needs custom parsing)
+            articles = soup.find_all('a', href=True, limit=20)
+            
+            for article in articles:
+                try:
+                    if not article['href'].startswith('http'):
+                        article_url = url.rstrip('/') + '/' + article['href'].lstrip('/')
+                    else:
+                        article_url = article['href']
+                    
+                    # Download and extract content
+                    downloaded = fetch_url(article_url)
+                    content = extract(downloaded, include_comments=False, no_fallback=True)
+                    
+                    if content and len(content) > 800:
+                        results.append({
+                            'source': 'pentest-writeup',
+                            'origin': url,
+                            'url': article_url,
+                            'content': content,
+                            'timestamp': datetime.now().isoformat()
+                        })
+                    
+                    time.sleep(2)
+                except Exception:
+                    continue
+                    
+        except Exception as e:
+            print(f"  Writeup source error {url}: {e}")
+            continue
+    
+    return results
+
+def scrape_recent_cve_pocs():
+    """Scrape recent CVE Proof-of-Concepts from GitHub trending"""
+    results = []
+    
+    # GitHub search for recent CVE PoCs
+    search_queries = [
+        "CVE-2024",
+        "CVE-2023",
+        "exploit poc",
+        "vulnerability poc",
+    ]
+    
+    print("  ℹ️  GitHub CVE PoC search requires authentication, using repos instead")
+    return results
+
 # =============================================================================
 # CVE DATABASES (ENHANCED)
 # =============================================================================
+
+def scrape_exploit_db_recent(limit=100):
+    """Scrape recent ExploitDB entries with full content"""
+    results = []
+    base_url = "https://www.exploit-db.com"
+    
+    try:
+        # Get recent exploits page
+        resp = requests.get(f"{base_url}/", timeout=10)
+        soup = BeautifulSoup(resp.text, 'html.parser')
+        
+        # Find exploit links
+        exploit_rows = soup.find_all('tr', limit=limit)
+        
+        for row in exploit_rows[:limit]:
+            try:
+                # Extract exploit ID and title
+                link = row.find('a', href=re.compile(r'/exploits/\d+'))
+                if not link:
+                    continue
+                
+                exploit_id = link['href'].split('/')[-1]
+                title = link.text.strip()
+                exploit_url = f"{base_url}{link['href']}"
+                
+                # Get full exploit page
+                exploit_resp = requests.get(exploit_url, timeout=10)
+                exploit_soup = BeautifulSoup(exploit_resp.text, 'html.parser')
+                
+                # Extract exploit code/content
+                code_block = exploit_soup.find('code')
+                description = exploit_soup.find('div', {'class': 'exploit-description'})
+                
+                content = f"# ExploitDB-{exploit_id}: {title}\n\n"
+                if description:
+                    content += f"## Description\n{description.text.strip()}\n\n"
+                if code_block:
+                    content += f"## Exploit Code\n```\n{code_block.text.strip()}\n```\n"
+                
+                if len(content) > 500:
+                    results.append({
+                        'source': 'exploitdb',
+                        'exploit_id': exploit_id,
+                        'title': title,
+                        'url': exploit_url,
+                        'content': content,
+                        'timestamp': datetime.now().isoformat()
+                    })
+                
+                time.sleep(1)
+            except Exception:
+                continue
+                
+    except Exception as e:
+        print(f"  ExploitDB error: {e}")
+    
+    return results
 
 def scrape_cve_recent(years=3):
     """Download recent CVEs with detailed descriptions"""
@@ -291,7 +468,7 @@ def scrape_cve_mitre():
     return results
 
 # =============================================================================
-# SECURITY BLOGS (MASSIVELY EXPANDED)
+# SECURITY BLOGS (MASSIVELY EXPANDED - 2023-2025 FOCUS)
 # =============================================================================
 SECURITY_BLOGS = [
     # Original
@@ -327,6 +504,46 @@ SECURITY_BLOGS = [
     # Research heavy
     "https://research.checkpoint.com/feed/",
     "https://blog.talosintelligence.com/feeds/posts/default",
+    
+    # NEW - Zero Day Initiative & Top Researchers
+    "https://www.thezdi.com/blog/?format=rss",  # Zero Day Initiative
+    "https://googleprojectzero.blogspot.com/feeds/posts/default",  # Project Zero
+    "https://labs.withsecure.com/blog/rss",  # WithSecure Labs
+    
+    # NEW - Bug Bounty Hunters & Security Researchers
+    "https://infosecwriteups.com/feed",  # InfoSec Write-ups
+    "https://bishopfox.com/blog/feed",  # Bishop Fox
+    "https://www.rapid7.com/blog/feed/",  # Rapid7
+    "https://www.praetorian.com/blog/feed/",  # Praetorian
+    
+    # NEW - Red Team & Offensive Security
+    "https://blog.cobaltstrike.com/feed/",  # Cobalt Strike
+    "https://www.mdsec.co.uk/feed/",  # MDSec
+    "https://www.trustedsec.com/feed/",  # TrustedSec
+    "https://redcanary.com/blog/feed/",  # Red Canary
+    
+    # NEW - Application Security
+    "https://snyk.io/blog/feed/",  # Snyk
+    "https://blog.sqreen.com/feed/",  # Sqreen
+    "https://www.veracode.com/blog/feed",  # Veracode
+    
+    # NEW - Malware & Threat Intelligence
+    "https://blog.malwarebytes.com/feed/",  # Malwarebytes
+    "https://unit42.paloaltonetworks.com/feed/",  # Unit 42
+    "https://www.crowdstrike.com/blog/feed/",  # CrowdStrike
+    
+    # NEW - Cloud & Container Security
+    "https://sysdig.com/blog/feed/",  # Sysdig
+    "https://blog.aquasec.com/rss.xml",  # Aqua Security
+    "https://www.wiz.io/blog/feed",  # Wiz
+    
+    # NEW - Mobile Security
+    "https://blog.zimperium.com/feed/",  # Zimperium
+    "https://www.nowsecure.com/blog/feed/",  # NowSecure
+    
+    # NEW - DFIR & Forensics
+    "https://www.fireeye.com/blog/feed",  # Mandiant/FireEye
+    "https://www.volexity.com/blog/feed/",  # Volexity
 ]
 
 def scrape_blog_feed(feed_url, max_articles=50):
@@ -574,13 +791,18 @@ def main():
     all_sources.extend(h1_results)
     save_results(h1_results, "hackerone_reports.jsonl")
     
-    # 3. CVE Databases
-    print("\n🔒 Downloading CVE databases...")
+    # 3. CVE Databases & Exploit Collections
+    print("\n🔒 Downloading CVE databases and exploits...")
     
     print("  📊 NVD Recent CVEs...")
     cve_results = scrape_cve_recent(years=3)
     all_sources.extend(cve_results)
     save_results(cve_results, "nvd_cves.jsonl")
+    
+    print("  💣 ExploitDB Recent Exploits...")
+    exploitdb_results = scrape_exploit_db_recent(limit=100)
+    all_sources.extend(exploitdb_results)
+    save_results(exploitdb_results, "exploitdb_recent.jsonl")
     
     # 4. GitHub Security Advisories
     print("\n🛡️  Scraping GitHub Security Advisories...")
@@ -612,6 +834,12 @@ def main():
     ps_results = scrape_packetstorm()
     all_sources.extend(ps_results)
     save_results(ps_results, "packetstorm.jsonl")
+    
+    # 8. Pentesting Write-ups (NEW)
+    print("\n📝 Scraping high-quality pentesting write-ups...")
+    writeup_results = scrape_pentesterlab_writeups()
+    all_sources.extend(writeup_results)
+    save_results(writeup_results, "pentest_writeups.jsonl")
     
     # Summary
     print("\n" + "="*80)

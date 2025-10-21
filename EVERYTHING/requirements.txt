@@ -13,3 +13,10 @@ uvicorn==0.30.0
 pydantic==2.8.0
 psutil==6.0.0
 tqdm==4.67.0
+
+# Scraper dependencies
+requests==2.31.0
+beautifulsoup4==4.12.3
+feedparser==6.0.11
+trafilatura==1.10.0
+lxml==5.2.2
