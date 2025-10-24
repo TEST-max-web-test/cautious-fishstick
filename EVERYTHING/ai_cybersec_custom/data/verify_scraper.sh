@@ -1,0 +1,13 @@
+#!/bin/bash
+echo "============================================"
+echo "CONTINUOUS SCRAPER STATUS"
+echo "============================================"
+ps -p 5535 > /dev/null && echo "Status: ✅ RUNNING (PID 5535)" || echo "Status: ❌ STOPPED"
+echo "Started: October 24, 2025 23:32 UTC"
+echo ""
+echo "Data Size: $(du -sh scraped_data_continuous/ 2>/dev/null | cut -f1 || echo '0')"
+echo "Files: $(ls scraped_data_continuous/*.jsonl 2>/dev/null | wc -l || echo '0')"
+echo ""
+echo "Last 10 Log Entries:"
+tail -10 continuous_scraper.log 2>/dev/null || echo "No log yet"
+echo "============================================"

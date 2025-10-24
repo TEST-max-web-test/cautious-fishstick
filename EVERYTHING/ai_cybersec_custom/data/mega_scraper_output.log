@@ -1,0 +1,41 @@
+================================================================================
+🚀 MEGA SECURITY DATA SCRAPER - 2024-2025 EDITION
+================================================================================
+
+Output directory: /workspace/EVERYTHING/ai_cybersec_custom/data/scraped_data
+Started: 2025-10-23T22:32:07.522422
+
+⚠️  This will collect MASSIVE amounts of data - may take hours!
+
+
+================================================================================
+📂 SCRAPING GITHUB SECURITY REPOSITORIES (200+ repos)
+================================================================================
+GitHub repos:   0%|          | 0/162 [00:00<?, ?it/s]2025-10-23 22:32:08,867 - INFO - Saved 1 unique items to github_Active-Directory-Exploitation-Cheat-Sheet.jsonl (0.05 MB)
+GitHub repos:   1%|          | 1/162 [00:01<03:28,  1.30s/it]2025-10-23 22:32:17,276 - INFO - Saved 22 unique items to github_Privilege-Escalation.jsonl (0.08 MB)
+GitHub repos:   1%|          | 2/162 [00:09<14:36,  5.48s/it]GitHub repos:   2%|▏         | 3/162 [00:09<08:01,  3.03s/it]2025-10-23 22:32:27,365 - INFO - Saved 14 unique items to github_tbhm.jsonl (17.15 MB)
+GitHub repos:   2%|▏         | 4/162 [00:19<15:12,  5.77s/it]2025-10-23 22:32:30,080 - INFO - Saved 100 unique items to github_hacktricks.jsonl (1.24 MB)
+GitHub repos:   3%|▎         | 5/162 [00:22<12:14,  4.68s/it]2025-10-23 22:32:30,156 - INFO - Saved 100 unique items to github_CheatSheetSeries.jsonl (1.81 MB)
+GitHub repos:   4%|▍         | 7/162 [00:23<06:18,  2.44s/it]2025-10-23 22:32:43,855 - INFO - Saved 100 unique items to github_PayloadsAllTheThings.jsonl (3.61 MB)
+GitHub repos:   5%|▍         | 8/162 [00:36<13:37,  5.31s/it]2025-10-23 22:32:46,223 - INFO - Saved 1 unique items to github_PoC-in-GitHub.jsonl (4.10 MB)
+GitHub repos:   6%|▌         | 9/162 [00:38<11:28,  4.50s/it]2025-10-23 22:32:47,264 - INFO - Saved 17 unique items to github_PEASS-ng.jsonl (0.07 MB)
+GitHub repos:   6%|▌         | 10/162 [00:39<08:55,  3.52s/it]2025-10-23 22:32:50,109 - INFO - Saved 100 unique items to github_pwndbg.jsonl (0.14 MB)
+GitHub repos:   7%|▋         | 11/162 [00:42<08:22,  3.33s/it]2025-10-23 22:32:50,982 - INFO - Saved 1 unique items to github_awesome-web-hacking.jsonl (0.02 MB)
+GitHub repos:   7%|▋         | 12/162 [00:43<06:31,  2.61s/it]2025-10-23 22:32:51,159 - INFO - Saved 5 unique items to github_awesome-web-security.jsonl (0.24 MB)
+GitHub repos:   8%|▊         | 13/162 [00:43<04:42,  1.90s/it]2025-10-23 22:32:55,644 - INFO - Saved 19 unique items to github_bugbounty-cheatsheet.jsonl (0.05 MB)
+GitHub repos:   9%|▊         | 14/162 [00:48<06:33,  2.66s/it]2025-10-23 22:32:58,536 - INFO - Saved 100 unique items to github_cve.jsonl (0.08 MB)
+GitHub repos:   9%|▉         | 15/162 [00:50<06:41,  2.73s/it]2025-10-23 22:33:12,358 - WARNING - Rate limited on OWASP/ASVS, waiting...
+2025-10-23 22:33:12,873 - WARNING - Rate limited on rapid7/metasploit-framework, waiting...
+2025-10-23 22:33:13,466 - WARNING - Rate limited on projectdiscovery/nuclei-templates, waiting...
+2025-10-23 22:33:14,039 - WARNING - Rate limited on KathanP19/HowToHunt, waiting...
+2025-10-23 22:33:15,209 - WARNING - Rate limited on OWASP/wstg, waiting...
+2025-10-23 22:34:13,113 - WARNING - Rate limited on rapid7/metasploit-framework, waiting...
+2025-10-23 22:34:18,282 - WARNING - Rate limited on projectdiscovery/nuclei-templates, waiting...
+2025-10-23 22:34:23,024 - INFO - Saved 100 unique items to github_ASVS.jsonl (1.02 MB)
+GitHub repos:  10%|▉         | 16/162 [02:15<1:05:53, 27.08s/it]2025-10-23 22:34:23,075 - WARNING - Rate limited on cujanovic/SSRF-Testing, waiting...
+2025-10-23 22:34:23,712 - WARNING - Rate limited on KathanP19/HowToHunt, waiting...
+2025-10-23 22:34:25,306 - INFO - Saved 100 unique items to github_wstg.jsonl (0.85 MB)
+GitHub repos:  10%|█         | 17/162 [02:17<47:33, 19.68s/it]  2025-10-23 22:34:29,945 - INFO - Saved 3 unique items to github_jwt_tool.jsonl (0.01 MB)
+GitHub repos:  11%|█         | 18/162 [02:22<36:26, 15.18s/it]2025-10-23 22:34:30,503 - INFO - Saved 1 unique items to github_bug-bounty-reference.jsonl (0.03 MB)
+GitHub repos:  12%|█▏        | 19/162 [02:22<25:45, 10.81s/it]2025-10-23 22:34:32,213 - INFO - Saved 3 unique items to github_awesome-bug-bounty.jsonl (0.03 MB)
+GitHub repos:  12%|█▏        | 20/162 [02:24<19:07,  8.08s/it]2025-10-23 22:34:32,295 - WARNING - Rate limited on Penetration-Testing-Study-Notes/Bug-Bounty-Notes, waiting...

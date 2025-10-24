@@ -1,0 +1,126 @@
+
+================================================================================
+🔍 FILTERING ALL SCRAPED DATA
+================================================================================
+
+Found 31 files to process
+
+Processing files:   0%|          | 0/31 [00:00<?, ?it/s]Processing files:  10%|▉         | 3/31 [00:01<00:17,  1.58it/s]Processing files:  19%|█▉        | 6/31 [00:07<00:34,  1.39s/it]Processing files:  26%|██▌       | 8/31 [00:09<00:27,  1.20s/it]Processing files:  29%|██▉       | 9/31 [00:09<00:23,  1.07s/it]Processing files:  35%|███▌      | 11/31 [00:10<00:14,  1.35it/s]Processing files:  42%|████▏     | 13/31 [00:14<00:21,  1.19s/it]Processing files:  52%|█████▏    | 16/31 [00:14<00:10,  1.42it/s]Processing files:  55%|█████▍    | 17/31 [00:14<00:08,  1.65it/s]Processing files:  65%|██████▍   | 20/31 [00:14<00:04,  2.60it/s]Processing files:  71%|███████   | 22/31 [00:16<00:04,  1.88it/s]Processing files:  77%|███████▋  | 24/31 [00:19<00:05,  1.38it/s]Processing files:  81%|████████  | 25/31 [00:19<00:03,  1.51it/s]Processing files:  84%|████████▍ | 26/31 [00:19<00:02,  1.71it/s]Processing files:  87%|████████▋ | 27/31 [00:21<00:03,  1.20it/s]Processing files:  90%|█████████ | 28/31 [00:22<00:02,  1.29it/s]Processing files:  94%|█████████▎| 29/31 [00:22<00:01,  1.51it/s]Processing files: 100%|██████████| 31/31 [00:22<00:00,  2.44it/s]Processing files: 100%|██████████| 31/31 [00:22<00:00,  1.38it/s]
+  github_awesome-web-hacking.jsonl:
+    Total: 1, Kept: 1
+    Filtered: 0, Low quality: 0, Duplicates: 0
+  github_Privilege-Escalation.jsonl:
+    Total: 22, Kept: 0
+    Filtered: 0, Low quality: 22, Duplicates: 0
+  github_PoC-in-GitHub.jsonl:
+    Total: 1, Kept: 0
+    Filtered: 1, Low quality: 0, Duplicates: 0
+  github_PowerSploit.jsonl:
+    Total: 3, Kept: 3
+    Filtered: 0, Low quality: 0, Duplicates: 0
+  github_Reverse-Engineering.jsonl:
+    Total: 1, Kept: 0
+    Filtered: 1, Low quality: 0, Duplicates: 0
+  github_tbhm.jsonl:
+    Total: 14, Kept: 10
+    Filtered: 3, Low quality: 1, Duplicates: 0
+  github_PEASS-ng.jsonl:
+    Total: 17, Kept: 15
+    Filtered: 2, Low quality: 0, Duplicates: 0
+  github_PayloadsAllTheThings.jsonl:
+    Total: 198, Kept: 156
+    Filtered: 22, Low quality: 20, Duplicates: 0
+  github_hacktricks.jsonl:
+    Total: 100, Kept: 94
+    Filtered: 6, Low quality: 0, Duplicates: 0
+  github_bug-bounty-reference.jsonl:
+    Total: 1, Kept: 1
+    Filtered: 0, Low quality: 0, Duplicates: 0
+  github_CTF-Writeups.jsonl:
+    Total: 100, Kept: 94
+    Filtered: 4, Low quality: 2, Duplicates: 0
+  github_Active-Directory-Exploitation-Cheat-Sheet.jsonl:
+    Total: 1, Kept: 0
+    Filtered: 1, Low quality: 0, Duplicates: 0
+  github_kubernetes.jsonl:
+    Total: 41, Kept: 8
+    Filtered: 33, Low quality: 0, Duplicates: 0
+  github_bugbounty-cheatsheet.jsonl:
+    Total: 19, Kept: 15
+    Filtered: 0, Low quality: 4, Duplicates: 0
+  github_jwt_tool.jsonl:
+    Total: 3, Kept: 2
+    Filtered: 1, Low quality: 0, Duplicates: 0
+  github_Azure-Security-Center.jsonl:
+    Total: 15, Kept: 14
+    Filtered: 1, Low quality: 0, Duplicates: 0
+  github_metasploit-framework.jsonl:
+    Total: 100, Kept: 55
+    Filtered: 36, Low quality: 9, Duplicates: 0
+  github_awesome-bug-bounty.jsonl:
+    Total: 3, Kept: 3
+    Filtered: 0, Low quality: 0, Duplicates: 0
+  github_cve.jsonl:
+    Total: 100, Kept: 15
+    Filtered: 1, Low quality: 84, Duplicates: 0
+  github_awesome-web-security.jsonl:
+    Total: 5, Kept: 2
+    Filtered: 3, Low quality: 0, Duplicates: 0
+  github_CheatSheetSeries.jsonl:
+    Total: 133, Kept: 119
+    Filtered: 9, Low quality: 5, Duplicates: 0
+  github_pwndbg.jsonl:
+    Total: 246, Kept: 69
+    Filtered: 177, Low quality: 0, Duplicates: 0
+  github_reverse-engineering.jsonl:
+    Total: 1, Kept: 1
+    Filtered: 0, Low quality: 0, Duplicates: 0
+  github_Mobile-Security-Framework-MobSF.jsonl:
+    Total: 31, Kept: 20
+    Filtered: 3, Low quality: 7, Duplicates: 1
+  github_wstg.jsonl:
+    Total: 100, Kept: 88
+    Filtered: 11, Low quality: 1, Duplicates: 0
+  github_ctf-wiki.jsonl:
+    Total: 100, Kept: 76
+    Filtered: 13, Low quality: 11, Duplicates: 0
+  github_HowToHunt.jsonl:
+    Total: 85, Kept: 69
+    Filtered: 13, Low quality: 3, Duplicates: 0
+  github_ASVS.jsonl:
+    Total: 100, Kept: 96
+    Filtered: 4, Low quality: 0, Duplicates: 0
+  github_ctf.jsonl:
+    Total: 100, Kept: 88
+    Filtered: 6, Low quality: 6, Duplicates: 0
+  github_owasp-mstg.jsonl:
+    Total: 100, Kept: 58
+    Filtered: 32, Low quality: 10, Duplicates: 0
+  github_my-arsenal-of-aws-security-tools.jsonl:
+    Total: 3, Kept: 2
+    Filtered: 1, Low quality: 0, Duplicates: 0
+
+================================================================================
+✅ FILTERING COMPLETE
+================================================================================
+
+Total unique items: 1,174
+
+Breakdown by source:
+  github              : 1,174
+
+Quality distribution:
+  High (≥0.6):    1,142 (97.3%)
+  Medium (0.3-0.6): 32 (2.7%)
+
+Output files:
+  consolidated_training_data.jsonl: 8.63 MB
+  text_corpus.txt: 8.11 MB
+
+================================================================================
+📤 NEXT STEPS:
+================================================================================
+1. Review: filtered_data/consolidated_training_data.jsonl
+2. Copy text_corpus.txt to: ../combined_corpus.txt (or append)
+3. Train model: python train/train.py
+================================================================================
