@@ -1,0 +1,43 @@
+
+╔═══════════════════════════════════════════════════════════════╗
+║         CONTINUOUS SCRAPER FOR 200M MODEL                     ║
+╠═══════════════════════════════════════════════════════════════╣
+║  Target: 2 billion tokens (1-2 GB filtered)                   ║
+║  Strategy: Endless loop, increasing depth each cycle          ║
+║  Runtime: Days/weeks (until manually stopped)                 ║
+║  Output: scraped_data_continuous                                         
+╚═══════════════════════════════════════════════════════════════╝
+
+Started: 2025-10-24 23:32:12.424674
+GitHub Token: Active
+PID: /usr/bin/python3 (check with ps aux | grep continuous_scraper)
+
+VERIFY I'M RUNNING:
+  ps aux | grep continuous_scraper
+  tail -f scraped_data_continuous/../continuous_scraper.log
+  ls -lth scraped_data_continuous/
+  
+Press Ctrl+C or kill the process to stop.
+
+[2025-10-24 23:32:12] 🚀 STARTING CONTINUOUS COLLECTION...
+[2025-10-24 23:32:12] Total repos: 30
+[2025-10-24 23:32:12] Initial depth: 500 files per repo
+[2025-10-24 23:32:12] 
+======================================================================
+[2025-10-24 23:32:12] 🔄 CYCLE 1 - Depth: 500 files per repo
+[2025-10-24 23:32:12] ======================================================================
+[2025-10-24 23:32:12] [Cycle 1] [1/30] Scraping OWASP/CheatSheetSeries (up to 500 files)...
+[2025-10-24 23:33:01]   ✅ OWASP/CheatSheetSeries: +141 new items (141 total)
+[2025-10-24 23:33:03] [Cycle 1] [2/30] Scraping swisskyrepo/PayloadsAllTheThings (up to 500 files)...
+[2025-10-24 23:34:17]   ✅ swisskyrepo/PayloadsAllTheThings: +228 new items (228 total)
+[2025-10-24 23:34:19] [Cycle 1] [3/30] Scraping HackTricks-wiki/hacktricks (up to 500 files)...
+[2025-10-24 23:37:05]   ✅ HackTricks-wiki/hacktricks: +495 new items (496 total)
+[2025-10-24 23:37:07] [Cycle 1] [4/30] Scraping carlospolop/PEASS-ng (up to 500 files)...
+[2025-10-24 23:39:20]   ✅ carlospolop/PEASS-ng: +300 new items (300 total)
+[2025-10-24 23:39:22] [Cycle 1] [5/30] Scraping rapid7/metasploit-framework (up to 500 files)...
+[2025-10-24 23:42:10]   ✅ rapid7/metasploit-framework: +424 new items (462 total)
+[2025-10-24 23:42:12] [Cycle 1] [6/30] Scraping offensive-security/exploitdb (up to 500 files)...
+[2025-10-24 23:42:13]   ⚠️ offensive-security/exploitdb: No data
+[2025-10-24 23:42:15] [Cycle 1] [7/30] Scraping danielmiessler/SecLists (up to 500 files)...
+[2025-10-24 23:45:05]   ✅ danielmiessler/SecLists: +411 new items (413 total)
+[2025-10-24 23:45:07] [Cycle 1] [8/30] Scraping fuzzdb-project/fuzzdb (up to 500 files)...
